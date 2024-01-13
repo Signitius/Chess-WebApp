@@ -1,0 +1,69 @@
+*{
+    box-sizing: border-box;
+}
+body{
+    font-size: 2rem;
+    background-color: rgb(199, 197, 201);
+    
+}
+
+
+#board-container{
+    display: none;
+}
+.rank{
+    display:flex;
+    flex-direction: row;
+    height: 50;
+}
+#board{
+    margin: auto;
+    display:flex;
+  
+    flex-direction: column;
+    width: 400px;
+    height: 400px;
+    
+    padding: 0;
+}
+.square{
+    width: 50px;
+    
+    height: 50px;
+    display: inline-block;
+    text-align: center;
+    margin: 0;
+}
+#buttons #button1{
+    color: #811f1f;
+}
+
+#buttons #button2{
+    color: #811f1f;
+}
+img{
+    width: 40px;
+    height: 40px;
+    margin : 5px auto;
+    
+   
+    
+}
+
+.clicked{
+    border: 2px solid black;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+

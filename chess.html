@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <title>CHESS</title>
+        <link rel="stylesheet" href="chess.css"/>
+    
+    </head>
+    <body>
+        
+        <div id="buttons" type="button"><button id="button1">2 player mode</button>
+            <button type="button" id="button2">Play vs Ai </button>
+        </div>
+        <div id="board-container">
+            <div id="board">
+                <div id="rank8" class="rank">
+                    <div class="square" id="a8">
+                        <img src="wikipedia/bR.png" alt="">
+                    </div>
+                    <div class="square" id="b8">
+                        <img src="wikipedia/bN.png" alt="">
+                    </div>
+                    <div class="square" id="c8">
+                        <img src="wikipedia/bB.png"alt="">
+                    </div>
+                    <div class="square" id="d8">
+                        <img src="wikipedia/bQ.png" alt="">
+                        
+                    </div>
+                    <div class="square" id="e8">
+                        <img src="wikipedia/bK.png" alt="">
+                        
+                    </div>
+                    <div class="square" id="f8">
+                        <img src="wikipedia/bB.png" alt="">
+                        
+                    </div>
+                    <div class="square" id="g8">
+                        <img src="wikipedia/bN.png" alt="">
+                        
+                    </div>
+                    <div class="square" id="h8">
+                        <img src="wikipedia/bR.png" alt="">
+                        
+                    </div>
+    
+                </div>
+                <div id="rank7" class="rank">
+                    <div class="square" id="a7">
+                        <img src="wikipedia/bP.png" alt="">
+                        
+                    </div>
+                    <div class="square" id="b7">
+                        <img src="wikipedia/bP.png" alt="">
+                        
+                    </div>
+                    <div class="square" id="c7">
+                        <img src="wikipedia/bP.png" alt="">
+                        
+                    </div>
+                    <div class="square" id="d7">
+                        <img src="wikipedia/bP.png" alt="">
+                        
+                    </div>
+                    <div class="square" id="e7">
+                        <img src="wikipedia/bP.png" alt="">
+                        
+                    </div>
+                    <div class="square" id="f7">
+                        <img src="wikipedia/bP.png" alt="">
+                        
+                    </div>
+                    <div class="square" id="g7">
+                        <img src="wikipedia/bP.png" alt="">
+                        
+                    </div>
+                    <div class="square" id="h7">
+                        <img src="wikipedia/bP.png" alt="">
+                        
+                    </div>
+    
+                </div>
+                <div id="rank6" class="rank">
+                    <div class="square" id="a6"></div>
+                    <div class="square" id="b6"></div>
+                    <div class="square" id="c6"></div>
+                    <div class="square" id="d6"></div>
+                    <div class="square" id="e6"></div>
+                    <div class="square" id="f6"></div>
+                    <div class="square" id="g6"></div>
+                    <div class="square" id="h6"></div>
+                  
+                </div>
+                <div id="rank5" class="rank">
+                    <div class="square" id="a5"></div>
+                    <div class="square" id="b5"></div>
+                    <div class="square" id="c5"></div>
+                    <div class="square" id="d5"></div>
+                    <div class="square" id="e5"></div>
+                    <div class="square" id="f5"></div>
+                    <div class="square" id="g5"></div>
+                    <div class="square" id="h5"></div>
+                </div>
+                <div id="rank4" class="rank">
+                    <div class="square" id="a4"></div>
+                    <div class="square" id="b4"></div>
+                    <div class="square" id="c4"></div>
+                    <div class="square" id="d4"></div>
+                    <div class="square" id="e4"></div>
+                    <div class="square" id="f4"></div>
+                    <div class="square" id="g4"></div>
+                    <div class="square" id="h4"></div>
+                </div>
+                <div id="rank3" class="rank">
+                    <div class="square" id="a3"></div>
+                    <div class="square" id="b3"></div>
+                    <div class="square" id="c3"></div>
+                    <div class="square" id="d3"></div>
+                    <div class="square" id="e3"></div>
+                    <div class="square" id="f3"></div>
+                    <div class="square" id="g3"></div>
+                    <div class="square" id="h3"></div>
+                </div>
+                <div id="rank2" class="rank">
+                    <div class="square" id="a2">
+                        <img src="wikipedia/wP.png" alt="">
+                    </div>
+                    <div class="square" id="b2">
+                        <img src="wikipedia/wP.png" alt="">
+                    </div>
+                    <div class="square" id="c2">
+                        <img src="wikipedia/wP.png" alt="">
+                    </div>
+                    <div class="square" id="d2">
+                        <img src="wikipedia/wP.png" alt="">
+                    </div>
+                    <div class="square" id="e2">
+                        <img src="wikipedia/wP.png" alt="">
+                    </div>
+                    <div class="square" id="f2">
+                        <img src="wikipedia/wP.png" alt="">
+                    </div>
+                    <div class="square" id="g2">
+                        <img src="wikipedia/wP.png" alt="">
+                    </div>
+                    <div class="square" id="h2">
+                        <img src="wikipedia/wP.png" alt="">
+                    </div>
+                </div>
+                <div id="rank1" class="rank">
+                    <div class="square" id="a1">
+                        <img src="wikipedia/wR.png" alt="">
+                    </div>
+                    <div class="square" id="b1">
+                        <img src="wikipedia/wN.png" alt="">
+                    </div>
+                    <div class="square" id="c1">
+                        <img src="wikipedia/wB.png" alt="">
+                    </div>
+                    <div class="square" id="d1">
+                        <img src="wikipedia/wQ.png" alt="">
+                    </div>
+                    <div class="square" id="e1">
+                        <img src="wikipedia/wK.png" alt="">
+                    </div>
+                    <div class="square" id="f1">
+                        <img src="wikipedia/wB.png" alt="">
+                    </div>
+                    <div class="square" id="g1">
+                        <img src="wikipedia/wN.png" alt="">
+                    </div>
+                    <div class="square" id="h1">
+                        <img src="wikipedia/wR.png" alt="">
+                    </div>
+                </div>   
+            </div>
+        </div>
+        
+        <script src="ui.js"></script>
+    
+    </body>
+</html>
