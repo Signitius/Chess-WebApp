@@ -90,7 +90,7 @@ function highlight(e){
     e.currentTarget.classList.add('clicked');
     if(lastClicked.firstElementChild){
         for (move in currentPossibleDestinations){
-            if (move[1]==e.currentTarget.id) makeMove(lastClicked.id,move);
+            if (move[1]==e.currentTarget.id) makeMove(move,gameState.currentPosition);
             break;
         }
     }
@@ -110,21 +110,21 @@ function highlight(e){
 
         
 }
-function makeMove(typeAndDestination){
+function makeMove(typeAndDestination,position){
     switch (typeAndDestination[0]){
-        case 'empassant':
-        case 'capture':
-        case'normal':
-        case 'whitecastling-Queenside':
-        case'blackcastling-kingside':
-        case 'whitecastling-kingside':
-        case 'blackcastling-Queenside':
-        case 'promotion':
-        case 'promotional capture':
+        case 'empassant': empassant(typeAndDestination[1],position);
+        case 'capture': capture(typeAndDestination[1],position);
+        case'normal': generalMover(typeAndDestination[1],position);
+        case 'whitecastling-Queenside': whiteKingCastle(position);
+        case'blackcastling-kingside': whiteQueenCastle(position);
+        case 'whitecastling-kingside': blackKingCastle(position);
+        case 'blackcastling-Queenside': blackQueenCastle(position);
+        case 'promotion': promotion(typeAndDestination[1],position);
+        case 'promotional capture': promotionalCapture(typeAndDestination[1],position);
     }
 
-function generalMover(move){
-    for(array of gameState.currentPosition){
+function generalMover(move,position){
+    for(array of position){
         if (lastClicked in array){
             array[array.indexof(lastClicked)]=move;
             break;
@@ -132,10 +132,10 @@ function generalMover(move){
         }
     }
 }
-function empassant(move){
+function empassant(move,position){
     generalMover(move);
     let below=[move[0],move[1]-1];
-    for(array of gameState.currentPosition){
+    for(array of position){
         if (below in array){
             array.splice(array.indexof(below),1);
             break;
@@ -145,9 +145,9 @@ function empassant(move){
     
 
 }
-function capture(){
-    let swapped;
-    for(array of gameState.currentPosition){
+function capture(move,position){
+    
+    for(array of position){
         if (move in array){
             array.splice(array.indexof(move),1);
             break;
@@ -156,6 +156,55 @@ function capture(){
     }
     generalMover(move);
 }
+function promotion(move,position){
+    for(array of position){
+        if (lastClicked in array){
+            array.splice(array.indexof(lastClicked),1);
+            break;
+
+        }
+    }
+    for(arrayProperty in gameState.position){
+        if (arrayProperty.includes('Queen') && arrayProperty.includes(currentPieceColor)){
+            array["arrayProperty"].push(move);
+            break;
+
+        }
+    }
+    //auto queen promotion for now. must change it later
+}
+function promotionalCapture(move,position){
+    for(array of position){
+        if (move in array){
+            array.splice(array.indexof(move),1);
+            break;
+
+        }
+    }
+    promotion(move);
+}
+
+function whiteKingCastle(position){
+    let rookSwap=position.whiteRooks.indexOf([7,0])
+    position.whiteRooks[rookSwap]=[5,0];
+    position.whiteKing[0]=[6,0];
+}
+function whiteQueenCastle(position){
+    let rookSwap=position.whiteRooks.indexOf([0,0])
+    position.whiteRooks[rookSwap]=[3,0];
+    position.whiteKing[0]=[2,0];
+}
+function blackKingCastle(position){
+    let rookSwap=position.whiteRooks.indexOf([7,7])
+    position.whiteRooks[rookSwap]=[5,7];
+    position.whiteKing[0]=[6,7];
+}
+function blackQueenCastle(position){
+    let rookSwap=position.whiteRooks.indexOf([0,7])
+    position.whiteRooks[rookSwap]=[3,7];
+    position.whiteKing[0]=[2,7];
+}
+
 
 
 

@@ -287,13 +287,23 @@ function blackPawnMove(square){
     
     
         //promotion logic
-    //promotional captures shall be checked at makeMove() time
-        if(square[1]==1 && checkOccupant(oneStepAbove)==0){
-            pieceTransfer=["promotion",oneStepAbove];
-            if(avoidsCheck(pieceTransfer)){
+    
+        if(square[1]==1){
+            if(checkOccupant(oneStepAbove)==0){
+                pieceTransfer=["promotion",oneStepAbove];
                 moveArray.push(pieceTransfer);
             }
+            if (checkOccupant(leftUpperCorner)==1){
+                pieceTransfer=["promotional capture",leftUpperCorner];
+                moveArray.push(pieceTransfer);
+            }
+            if (checkOccupant(rightUpperCorner)==1){
+                pieceTransfer=["promotional capture",rightUpperCorner];
+                moveArray.push(pieceTransfer);
+            }
+            
         }
+        
         return moveArray;
     
     
@@ -439,19 +449,20 @@ function checkOccupant(square){
 
 
 }
+let copyPosition;
 function avoidsCheck(move){
-    let copyPosition=gameState.currentPosition;
-    makeTestMove(copyPosition,move);
+    copyPosition=JSON.parse(JSON.stringify(gameState.currentPosition));
+    makeMove(move,copyPosition);
     return !(isCheck(copyPosition)); 
 
   
 
 }
-function isAttacked(square){
+function isAttacked(square,position=gameState.currentPosition){
     let transfers=[];
     
-    for (let array of gameState.currentPosition){
-        if(!(gameState.currentPosition.getkeys[array]).includes(currentPieceColor)){
+    for (let array of position){
+        if(!(position.getkeys[array]).includes(currentPieceColor)){
             for (let otherSquare of array){
                 transfers.push(collectSemiLegalAttackDestinations(otherSquare));
             }
@@ -478,13 +489,13 @@ function isCheck(position){
             break;
         }
     }
-    return isAttacked(kingPosition);
+    return isAttacked(kingPosition,position);
 
 
     
 }
-function makeMove(){}
-function makeTestMove(position,move){}
+
+
 function updateState(){}
 function checkState(){}
 function makeAiMove(
