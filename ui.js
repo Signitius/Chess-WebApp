@@ -79,8 +79,9 @@ function whiteVsAi(){
 }
 var currentSquare;
 var currentPossibleDestinations;
+let lastClicked;
 function highlight(e){
-    let lastClicked=document.querySelector('.clicked');
+    lastClicked=document.querySelector('.clicked');
 
     if(lastClicked) {
         lastClicked.classList.remove('clicked');
@@ -109,14 +110,71 @@ function highlight(e){
 
         
 }
-function makeMove(origin,typeAndDestination){
+function makeMove(typeAndDestination){
     switch (typeAndDestination[0]){
         case 'empassant':
         case 'capture':
         case'normal':
-        //case 'castling':
+        case 'whitecastling-Queenside':
+        case'blackcastling-kingside':
+        case 'whitecastling-kingside':
+        case 'blackcastling-Queenside':
         case 'promotion':
+        case 'promotional capture':
     }
+
+function generalMover(move){
+    for(array of gameState.currentPosition){
+        if (lastClicked in array){
+            array[array.indexof(lastClicked)]=move;
+            break;
+
+        }
+    }
+}
+function empassant(move){
+    generalMover(move);
+    let below=[move[0],move[1]-1];
+    for(array of gameState.currentPosition){
+        if (below in array){
+            array.splice(array.indexof(below),1);
+            break;
+
+        }
+    }
+    
+
+}
+function capture(){
+    let swapped;
+    for(array of gameState.currentPosition){
+        if (move in array){
+            array.splice(array.indexof(move),1);
+            break;
+
+        }
+    }
+    generalMover(move);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
 function rotateBoard(){
 

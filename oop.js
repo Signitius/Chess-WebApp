@@ -221,7 +221,7 @@ function whitePawnMove(square){
 
 }
 function blackPawnMove(square){
-    function whitePawnMove(square){
+    
         let moveArray=[];
         let oneStepAbove=[square[0],square[1]-1];
         let twoStepsAbove=[square[0],square[1]-2];
@@ -296,7 +296,7 @@ function blackPawnMove(square){
         }
         return moveArray;
     
-    }
+    
 }
 function bishopMove(square){
     let bishopDirections=["long-range",[-1,1],[1,1],[1,-1],[-1,-1]];
@@ -471,7 +471,7 @@ function isAttacked(square){
     
 }
 function isCheck(position){
-    let kingPosition
+    let kingPosition;
     for(let property in position){
         if (property.includes(currentPieceColor)&& property.includes("King")){
             kingPosition=position[property][0];
@@ -480,12 +480,11 @@ function isCheck(position){
     }
     return isAttacked(kingPosition);
 
-//generate isattackedmoved of opponents
-//see if there
+
     
 }
 function makeMove(){}
-function makeTestMove(){}
+function makeTestMove(position,move){}
 function updateState(){}
 function checkState(){}
 function makeAiMove(
