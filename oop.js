@@ -382,7 +382,7 @@ function whiteKingMove(square,castle){
     
 function generalMove(square,directionsArray){
     let moveArray=[]
-    for (let direction in directionsArray){
+    for (let direction of directionsArray){
         if(direction=='short-range'|| direction=="long-range"){
             continue;
         }
@@ -429,9 +429,10 @@ function checkOccupant(square){
     for (let array of gameState.currentPosition){
         if(square in array){
             type=gameState.currentPosition.getkeys[array];
-            color=type.includes('white')? 'white':"false";
-            value=(color==currentPieceColor)? 2:1;
+            color=type.includes('white')? 'white':'black';
+            value=(color=currentPieceColor)? 2:1;
             break;
+            
         }
     }
     return value;
@@ -457,7 +458,7 @@ function isAttacked(square){
         }
     }
     let squareAttacked=false;
-    for(let transfer in transfers){
+    for(let transfer of transfers){
 
         if (transfer[1]==square) {
             squareAttacked=true;
@@ -469,8 +470,16 @@ function isAttacked(square){
 
     
 }
-function isCheck(position, side){
-//king position
+function isCheck(position){
+    let kingPosition
+    for(let property in position){
+        if (property.includes(currentPieceColor)&& property.includes("King")){
+            kingPosition=position[property][0];
+            break;
+        }
+    }
+    return isAttacked(kingPosition);
+
 //generate isattackedmoved of opponents
 //see if there
     
