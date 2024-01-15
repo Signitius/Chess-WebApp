@@ -1,4 +1,4 @@
-
+import { gameState,collectLegalDestinations,makeMove } from "./oop";
 
 const button1=document.querySelector('#button1');
 const button2=document.querySelector('#button2');
@@ -10,7 +10,80 @@ const squares=document.querySelectorAll('.square');
 button1.onclick=twoPlayer;
 button2.onclick=chooseSide;
 
+function updateBoard(){
+    //eliminate all images
+    let images=querySelectorAll("img");
+    images.remove();
+    for (let array of gameState.currentPosition){
+        for (let locAtion of array){
+            for (let member of squares){
+                if (addressToCodes(member.id)==locAtion ){
+                    let img=document.createElement("img");
+                    switch(gameState.currentPosition.getkeys[array]){
+                            
+                        case "whitePawns":
+                            img.src="wikipedia/wP.png";
+                            member.appendChild(img);
+                            break;
+                        case "blackPawns":  
+                            img.src="wikipedia/bP.png";
+                            member.appendChild(img);
+                            break;
+                        case "whiteBishops":  
+                            img.src="wikipedia/wB.png";
+                            member.appendChild(img);
 
+                            break;
+                        case "blackBishops":  
+                            img.src="wikipedia/bB.png";
+                            member.appendChild(img);
+                            break;
+                        case "whiteKnights":  
+                            img.src="wikipedia/wN.png";
+                            member.appendChild(img);
+                            break;
+                        case "blackKnights":  
+                            img.src="wikipedia/bN.png";
+                            member.appendChild(img);
+                            break;
+                        case "whiteRooks":
+                            img.src="wikipedia/wR.png";
+                            member.appendChild(img);
+                            break;
+                        case "blackRooks":  
+                            img.src="wikipedia/bR.png";
+                            member.appendChild(img);
+                            break;
+                        case "whiteQueens":  
+                            img.src="wikipedia/wQ.png";
+                            member.appendChild(img);
+    
+                            break;
+                        case "blackQueens":  
+                            img.src="wikipedia/bQ.png";
+                            member.appendChild(img);
+                            break;
+                        case "whiteKing":  
+                            img.src="wikipedia/wK.png";
+                            member.appendChild(img);
+                            break;
+                        case "blackKing":  
+                            img.src="wikipedia/bK.png";
+                            member.appendChild(img);
+                            break;
+
+                    
+                    
+                    
+                    
+                        }
+                        break;
+                }
+            }
+        }
+    }
+    
+}
 
 
 
@@ -54,6 +127,7 @@ function shadeSquares(){
 function startup(){
     button1.textContent="Quit game";
     shadeSquares();
+    
     boardContainer.style.display="block";
  
 
@@ -89,14 +163,20 @@ function highlight(e){
     
     e.currentTarget.classList.add('clicked');
     if(lastClicked.firstElementChild){
-        for (move in currentPossibleDestinations){
-            if (move[1]==e.currentTarget.id) makeMove(move,gameState.currentPosition);
-            break;
+        if(currentPossibleDestinations){
+            for (move in currentPossibleDestinations){
+                if (move[1]==addressToCodes(e.currentTarget.id)){
+                    makeMove(addressToCodes(lastClicked.id),move,gameState.currentPosition);
+                    checkStatus();
+                    break;
+                }
+            }
         }
+        
     }
     else{
         if(e.currentTarget.firstElementChild){
-            currentSquare=e.currentTarget.id;
+            currentSquare=addressToCodes(e.currentTarget.id);
             for (let array of gameState.currentPosition){
                 if(currentSquare in array){
                     currentPieceType=gameState.currentPosition.getkeys[array];
@@ -110,100 +190,6 @@ function highlight(e){
 
         
 }
-function makeMove(typeAndDestination,position){
-    switch (typeAndDestination[0]){
-        case 'empassant': empassant(typeAndDestination[1],position);
-        case 'capture': capture(typeAndDestination[1],position);
-        case'normal': generalMover(typeAndDestination[1],position);
-        case 'whitecastling-Queenside': whiteKingCastle(position);
-        case'blackcastling-kingside': whiteQueenCastle(position);
-        case 'whitecastling-kingside': blackKingCastle(position);
-        case 'blackcastling-Queenside': blackQueenCastle(position);
-        case 'promotion': promotion(typeAndDestination[1],position);
-        case 'promotional capture': promotionalCapture(typeAndDestination[1],position);
-    }
-
-function generalMover(move,position){
-    for(array of position){
-        if (lastClicked in array){
-            array[array.indexof(lastClicked)]=move;
-            break;
-
-        }
-    }
-}
-function empassant(move,position){
-    generalMover(move);
-    let below=[move[0],move[1]-1];
-    for(array of position){
-        if (below in array){
-            array.splice(array.indexof(below),1);
-            break;
-
-        }
-    }
-    
-
-}
-function capture(move,position){
-    
-    for(array of position){
-        if (move in array){
-            array.splice(array.indexof(move),1);
-            break;
-
-        }
-    }
-    generalMover(move);
-}
-function promotion(move,position){
-    for(array of position){
-        if (lastClicked in array){
-            array.splice(array.indexof(lastClicked),1);
-            break;
-
-        }
-    }
-    for(arrayProperty in gameState.position){
-        if (arrayProperty.includes('Queen') && arrayProperty.includes(currentPieceColor)){
-            array["arrayProperty"].push(move);
-            break;
-
-        }
-    }
-    //auto queen promotion for now. must change it later
-}
-function promotionalCapture(move,position){
-    for(array of position){
-        if (move in array){
-            array.splice(array.indexof(move),1);
-            break;
-
-        }
-    }
-    promotion(move);
-}
-
-function whiteKingCastle(position){
-    let rookSwap=position.whiteRooks.indexOf([7,0])
-    position.whiteRooks[rookSwap]=[5,0];
-    position.whiteKing[0]=[6,0];
-}
-function whiteQueenCastle(position){
-    let rookSwap=position.whiteRooks.indexOf([0,0])
-    position.whiteRooks[rookSwap]=[3,0];
-    position.whiteKing[0]=[2,0];
-}
-function blackKingCastle(position){
-    let rookSwap=position.whiteRooks.indexOf([7,7])
-    position.whiteRooks[rookSwap]=[5,7];
-    position.whiteKing[0]=[6,7];
-}
-function blackQueenCastle(position){
-    let rookSwap=position.whiteRooks.indexOf([0,7])
-    position.whiteRooks[rookSwap]=[3,7];
-    position.whiteKing[0]=[2,7];
-}
 
 
 
@@ -224,7 +210,7 @@ function blackQueenCastle(position){
 
 
 
-}
+
 function rotateBoard(){
 
   
@@ -243,10 +229,19 @@ function rotateBoard(){
     }
         
 }
-//var images=document.querySelectorAll('img');
-//for(img of images){
-    
-//}
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

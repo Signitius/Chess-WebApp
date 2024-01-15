@@ -10,7 +10,7 @@ const pieceTypes={
     black:["pawn","knight","rook","bishop","queen","king"]
 }
 
-const gameState={
+export const gameState={
 
     sideToPlay:"white",
 
@@ -59,26 +59,32 @@ const gameState={
 
 
     
-function playVsAi(){
+/*function playVsAi(){
     getPlayerMove();
     makeAiMove();
 }
 function playHumanChess(){
     getPlayerMove();
-}
+}*/
 let pieceType;
 
-function collectLegalDestinations(square){
-    let castle=true;
-    let movesToCheck=collectSemiLegalDestinations(square,castle);
-    let verifiedMoves;
-    for (let move in movesToCheck){
-        if (avoidsCheck(move)){
-            verifiedMoves.push(move);
-        }
+export function collectLegalDestinations(square){
+    if(gameState.sideToPlay==currentPieceColor){
+        let castle=true;
+        let movesToCheck=collectSemiLegalDestinations(square,castle);
+        let verifiedMoves;
+        for (let move in movesToCheck){
+            if (avoidsCheck(square,move)){
+                verifiedMoves.push(move);
+            }
 
+        }
+        return verifiedMoves;
     }
-    return verifiedMoves;
+    else{
+        return null;
+    }
+    
 }
 function collectSemiLegalAttackDestinations(square){
     let castle=false;
@@ -450,9 +456,9 @@ function checkOccupant(square){
 
 }
 let copyPosition;
-function avoidsCheck(move){
+function avoidsCheck(square,move){
     copyPosition=JSON.parse(JSON.stringify(gameState.currentPosition));
-    makeMove(move,copyPosition);
+    makeMove(squaremove,copyPosition);
     return !(isCheck(copyPosition)); 
 
   
@@ -496,8 +502,8 @@ function isCheck(position){
 }
 
 
-function updateState(){}
-function checkState(){}
+
+function checkStatus(){}
 function makeAiMove(
     //choose random piece
     //make random move
@@ -520,3 +526,128 @@ function addressToCodes(address){
 }
 
 
+
+export function makeMove(origin,typeAndDestination,position){
+    switch (typeAndDestination[0]){
+            
+        case 'empassant': 
+            empassant(origin,typeAndDestination[1],position);
+            break;
+            
+        case 'capture': 
+            capture(origin,typeAndDestination[1],position);
+            break;
+            
+        case'normal': 
+            generalMover(origin,typeAndDestination[1],position);
+            break;
+            
+        case 'whitecastling-Queenside': 
+            whiteKingCastle(position);
+            break;
+            
+        case'blackcastling-kingside': 
+            whiteQueenCastle(position);
+            break;
+            
+        case 'whitecastling-kingside': 
+            blackKingCastle(position);
+            break;
+            
+        case 'blackcastling-Queenside': 
+            blackQueenCastle(position);
+            break;
+            
+        case 'promotion': 
+            promotion(origin,typeAndDestination[1],position);
+            break;
+            
+        case 'promotional capture': 
+            promotionalCapture(origin,typeAndDestination[1],position);
+            break;
+    }
+    updateBoard();
+    gameState.sideToPlay=(gameState.sideToPlay=="black")? "white":"black";
+}
+function generalMover(origin,move,position){
+    for(array of position){
+        if (origin in array){
+            array[array.indexof(origin)]=move;
+            break;
+
+        }
+    }
+
+}
+function empassant(origin,move,position){
+    generalMover(origin,move,position);
+    let below=[move[0],move[1]-1];
+    for(array of position){
+        if (below in array){
+            array.splice(array.indexof(below),1);
+            break;
+
+        }
+    }
+    
+
+}
+function capture(origin,move,position){
+    
+    for(array of position){
+        if (move in array){
+            array.splice(array.indexof(move),1);
+            break;
+
+        }
+    }
+    generalMover(origin,move,position);
+}
+function promotion(origin,move,position){
+    for(array of position){
+        if (origin in array){
+            array.splice(origin,1);
+            break;
+
+        }
+    }
+    for(arrayProperty in position){
+        if (arrayProperty.includes('Queen') && arrayProperty.includes(currentPieceColor)){
+            array["arrayProperty"].push(move);
+            break;
+
+        }
+    }
+    //auto queen promotion for now. must change it later
+}
+function promotionalCapture(move,position){
+    for(array of position){
+        if (move in array){
+            array.splice(array.indexof(move),1);
+            break;
+
+        }
+    }
+    promotion(move);
+}
+
+function whiteKingCastle(position){
+    let rookSwap=position.whiteRooks.indexOf([7,0])
+    position.whiteRooks[rookSwap]=[5,0];
+    position.whiteKing[0]=[6,0];
+}
+function whiteQueenCastle(position){
+    let rookSwap=position.whiteRooks.indexOf([0,0])
+    position.whiteRooks[rookSwap]=[3,0];
+    position.whiteKing[0]=[2,0];
+}
+function blackKingCastle(position){
+    let rookSwap=position.whiteRooks.indexOf([7,7])
+    position.whiteRooks[rookSwap]=[5,7];
+    position.whiteKing[0]=[6,7];
+}
+function blackQueenCastle(position){
+    let rookSwap=position.whiteRooks.indexOf([0,7])
+    position.whiteRooks[rookSwap]=[3,7];
+    position.whiteKing[0]=[2,7];
+}
