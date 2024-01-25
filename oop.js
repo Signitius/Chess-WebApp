@@ -445,7 +445,7 @@ function checkOccupant(square){
     for (let array of gameState.currentPosition){
         if(square in array){
             type=gameState.currentPosition.getkeys[array];
-            color=type.includes('white')? 'white':'black';
+            color=(type.includes('white'))? 'white':'black';
             value=(color=currentPieceColor)? 2:1;
             break;
             
