@@ -1,4 +1,4 @@
-import { gameState,collectLegalDestinations,makeMove } from "./oop";
+import { gameState,collectLegalDestinations,makeMove,addressToCodes,getkey } from "./oop.js";
 
 const button1=document.querySelector('#button1');
 const button2=document.querySelector('#button2');
@@ -11,15 +11,17 @@ button1.onclick=twoPlayer;
 button2.onclick=chooseSide;
 
 function updateBoard(){
+    console.log("updateboard executes");
     //eliminate all images
     let images=querySelectorAll("img");
     images.remove();
+    
     for (let array of gameState.currentPosition){
         for (let locAtion of array){
             for (let member of squares){
                 if (addressToCodes(member.id)==locAtion ){
                     let img=document.createElement("img");
-                    switch(gameState.currentPosition.getkeys[array]){
+                    switch(getkey(gameState.currentPosition,array)){
                             
                         case "whitePawns":
                             img.src="wikipedia/wP.png";
@@ -124,6 +126,8 @@ function shadeSquares(){
         
     }
 }
+var currentPieceType='';
+var currentPieceColor='';
 function startup(){
     button1.textContent="Quit game";
     shadeSquares();
@@ -159,15 +163,23 @@ function highlight(e){
 
     if(lastClicked) {
         lastClicked.classList.remove('clicked');
+        
+
     }
     
     e.currentTarget.classList.add('clicked');
-    if(lastClicked.firstElementChild){
+    if(lastClicked && lastClicked.firstElementChild){
+        
         if(currentPossibleDestinations){
-            for (move in currentPossibleDestinations){
+            console.log(currentPossibleDestinations);
+            for (let move in currentPossibleDestinations){
+                
                 if (move[1]==addressToCodes(e.currentTarget.id)){
-                    makeMove(addressToCodes(lastClicked.id),move,gameState.currentPosition);
+                    makeMove(addressToCodes(lastClicked.id),move,gameState.currentPosition,currentPieceColor);
+                    console.log("move updated internally");
+                    updateBoard();
                     checkStatus();
+                    lastClicked=null;
                     break;
                 }
             }
@@ -176,14 +188,25 @@ function highlight(e){
     }
     else{
         if(e.currentTarget.firstElementChild){
+        
             currentSquare=addressToCodes(e.currentTarget.id);
-            for (let array of gameState.currentPosition){
-                if(currentSquare in array){
-                    currentPieceType=gameState.currentPosition.getkeys[array];
-                    break;
+            
+
+            for (let array of Object.values(gameState.currentPosition)){
+                for (let code of array){
+                    if (code[0]==currentSquare[0] && code[1]== currentSquare[1]){
+
+                        currentPieceType=getkey(gameState.currentPosition,array);
+                        console.log(currentPieceType);
+                        currentPieceColor=(currentPieceType.includes('white'))? 'white':"black";
+                        
+                        break;
+                    }
                 }
+                
             }
-            currentPossibleDestinations=collectLegalDestinations(currentSquare);
+            currentPossibleDestinations=collectLegalDestinations(currentSquare,currentPieceColor);
+            
             
         }
     }
