@@ -127,7 +127,7 @@ function shadeSquares(){
     }
 }
 var currentPieceType='';
-var currentPieceColor='';
+var currentPieceColor='white';
 function startup(){
     button1.textContent="Quit game";
     shadeSquares();

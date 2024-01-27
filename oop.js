@@ -189,19 +189,9 @@ function whitePawnMove(square,currentPieceColor){
     
 
     //pawncapture logic
-    if(checkOccupant(leftUpperCorner,currentPieceColor)==1){
-        pieceTransfer=["capture",leftUpperCorner];
-        
-        moveArray.push(pieceTransfer);
-        
-    }
-
-    if(checkOccupant(rightUpperCorner,currentPieceColor)==1){
-        pieceTransfer=["capture",rightUpperCorner];
-        
-        moveArray.push(pieceTransfer);
-        
-    }
+    let whitePawnDirections=['short-range',[-1,1],[1,1]];
+    let captureArray=generalMove(square,whitePawnDirections,currentPieceColor);
+    moveArray=moveArray.concat(captureArray);
 
     //empassant logic
     if(square[1]==3){
@@ -266,19 +256,9 @@ function blackPawnMove(square,currentPieceColor){
         
     
         //pawncapture logic
-        if(checkOccupant(leftUpperCorner,currentPieceColor)==1){
-            pieceTransfer=["capture",leftUpperCorner];
-            
-            moveArray.push(pieceTransfer);
-            
-        }
-    
-        if(checkOccupant(rightUpperCorner,currentPieceColor)==1){
-            pieceTransfer=["capture",rightUpperCorner];
-            
-            moveArray.push(pieceTransfer);
-            
-        }
+        let blackPawnDirections=['short-range',[-1,-1],[1,-1]];
+        let captureArray=generalMove(square,blackPawnDirections,currentPieceColor);
+        moveArray=moveArray.concat(captureArray);
     
         //empassant logic
         if(square[1]==4){
@@ -322,6 +302,7 @@ function blackPawnMove(square,currentPieceColor){
     
     
 }
+
 function bishopMove(square,currentPieceColor){
     let bishopDirections=["long-range",[-1,1],[1,1],[1,-1],[-1,-1]];
     return generalMove(square,bishopDirections,currentPieceColor);
@@ -339,13 +320,13 @@ function queenMove(square,currentPieceColor){
     return generalMove(square,queenDirections,currentPieceColor);
 }
 function kingMove(square,currentPieceColor){
+    console.log(currentPieceColor);
     let kingDirections=["short-range",[0,1],[-1,0],[1,0],[0,-1],[-1,1],[1,1],[1,-1],[-1,-1]];
     return generalMove(square,kingDirections,currentPieceColor);
-    
 }
     
 function blackKingMove(square,castle,currentPieceColor){
-    let kingMoveList=kingMove(square);
+    let kingMoveList=kingMove(square,currentPieceColor);
     if (castle==true){
         if (!(gameState.blackKingRookHasMoved||gameState.blackKingHasMoved)){
             let fSquare=[square[0]+1,square[1]];
@@ -376,7 +357,7 @@ function blackKingMove(square,castle,currentPieceColor){
 }
 function whiteKingMove(square,castle,currentPieceColor){
     let kingMoveList=kingMove(square);
-    if (castle=true){
+    if (castle==true){
         if (!(gameState.whiteKingRookHasMoved||gameState.whiteKingHasMoved)){
             let fSquare=[square[0]+1,square[1]];
             let gSquare=[square[0]+2,square[1]];
@@ -404,38 +385,29 @@ function whiteKingMove(square,castle,currentPieceColor){
     return kingMoveList;
 }
     
-function generalMove(square,directionsArray,currentPieceColor){
+function attacks(square,directionsArray,position=gameState.currentPosition){
     
-    var moveArray=[]
-    for (let direction of directionsArray){
-        if(direction=='short-range'|| direction=="long-range"){
-            continue;
-        }
+    let attackedSquares=[]
+    
+    for(let direction of directionsArray){
         var newLocation=[square[0]+direction[0],square[1]+direction[1]];
-        console.log(newLocation);
         while (newLocation[0]>-1 && newLocation[0]<8 && newLocation[1]>-1 && newLocation[1]<8){
-            console.log('uuuuu');
-            if (checkOccupant(newLocation,currentPieceColor)==0){
-                let pieceTransfer=['normal',newLocation];
-                console.log(pieceTransfer);
-                moveArray.push(pieceTransfer);
-                
-                
-                if (directionsArray[0]=="short-range"){
-                    console.log('short range');
-                    break;
-                }
-                continue;
-            }
-            if(checkOccupant(newLocation,currentPieceColor)==2){
-                break;
+    
+            attackedSquares.push(newLocation);
 
+            if (directionsArray[0]=="short-range")break;
+
+            let occupied=false;
+            for (let array of Object.values(position)){
+                for (let code of array){
+                    if (code[0]==square[0] && code[1]== square[1]){
+                        occupied=true;
+                        break;
+                    }
+                }
+                    
             }
-            if(checkOccupant(newLocation,currentPieceColor)==1) {
-                let pieceTransfer=['capture',newLocation];
-                
-                moveArray.push(pieceTransfer);
-                
+            if (occupied==true){
                 break;
             }
             
@@ -443,10 +415,32 @@ function generalMove(square,directionsArray,currentPieceColor){
         }
         
     }
-    console.log(moveArray);
-    return moveArray;
+    
+    return attackedSquares;
 
 
+}
+function generalMove(square,directionsArray,currentPieceColor){
+    let pieceTransfer=[];
+    let movesArray=[];
+    let attacked=attacks(square,directionsArray);
+    for(let box of attacked){
+        
+        let status=checkOccupant(box,currentPieceColor);
+        switch(status){
+            case 0:
+                pieceTransfer=["normal",box];
+                movesArray.push(pieceTransfer);
+                break;
+            case 1:
+                pieceTransfer=["capture",box];
+                movesArray.push(pieceTransfer);
+                break;
+            case 2:
+                break;
+        }
+    }
+    return movesArray;
 }
 
 function checkOccupant(square,currentPieceColor){
@@ -484,7 +478,7 @@ function isAttacked(square,position=gameState.currentPosition,currentPieceColor)
     for (let array of Object.values(position)){
         if(!(getkey(position,array).includes(currentPieceColor))){
             for (let otherSquare of array){
-                transfers.push(collectSemiLegalAttackDestinations(otherSquare,currentPieceColor));
+                transfers=transfers.concat(attacks(otherSquare,positioncf));
             }
         }
     }
@@ -514,6 +508,7 @@ function isCheck(position,currentPieceColor){
 
     
 }
+
 
 
 
