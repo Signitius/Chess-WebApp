@@ -386,7 +386,23 @@ function whiteKingMove(square,castle,currentPieceColor){
 }
     
 function attacks(square,directionsArray,position=gameState.currentPosition){
-    
+    let piece;
+    for (let array of Object.values(position)){
+        for (let code of array){
+            if (code[0]==square[0] && code[1]== square[1]){
+
+                piece=getkey(position,array);
+                
+                
+                break;
+            }
+        }
+        
+    }
+    switch(piece){
+        
+    }
+
     let attackedSquares=[]
     
     for(let direction of directionsArray){
@@ -400,7 +416,7 @@ function attacks(square,directionsArray,position=gameState.currentPosition){
             let occupied=false;
             for (let array of Object.values(position)){
                 for (let code of array){
-                    if (code[0]==square[0] && code[1]== square[1]){
+                    if (code[0]==newLocation[0] && code[1]== newLocation[1]){
                         occupied=true;
                         break;
                     }
@@ -423,7 +439,7 @@ function attacks(square,directionsArray,position=gameState.currentPosition){
 function generalMove(square,directionsArray,currentPieceColor){
     let pieceTransfer=[];
     let movesArray=[];
-    let attacked=attacks(square,directionsArray);
+    let attacked=attacks(square);
     for(let box of attacked){
         
         let status=checkOccupant(box,currentPieceColor);
@@ -478,7 +494,7 @@ function isAttacked(square,position=gameState.currentPosition,currentPieceColor)
     for (let array of Object.values(position)){
         if(!(getkey(position,array).includes(currentPieceColor))){
             for (let otherSquare of array){
-                transfers=transfers.concat(attacks(otherSquare,positioncf));
+                transfers=transfers.concat(attacks(otherSquare,position));
             }
         }
     }
