@@ -159,7 +159,7 @@ var currentSquare;
 var currentPossibleDestinations;
 let lastClicked;
 function highlight(e){
-    lastClicked=document.querySelector('.clicked');
+    
 
     if(lastClicked) {
         lastClicked.classList.remove('clicked');

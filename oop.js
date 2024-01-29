@@ -4,11 +4,7 @@
 
 var gameOccurying=true;
 
-const pieceTypes={
-    //change to reflect pieceTypes to aid checkOccupant()
-    white:["pawn","knight","rook","bishop","queen","king"],
-    black:["pawn","knight","rook","bishop","queen","king"]
-}
+
 
 export const gameState={
 
