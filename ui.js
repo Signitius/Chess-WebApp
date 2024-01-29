@@ -1,91 +1,15 @@
-import { gameState,collectLegalDestinations,makeMove,addressToCodes,getkey } from "./oop.js";
-
 const button1=document.querySelector('#button1');
 const button2=document.querySelector('#button2');
 const boardContainer=document.querySelector('#board-container');
 const board=document.querySelector('#board');
 const ranks=document.querySelectorAll('.rank');
 const squares=document.querySelectorAll('.square');
+const darkSquares=document.querySelectorAll('.dark');
+const lightSquares=document.querySelectorAll('.light');
+
 
 button1.onclick=twoPlayer;
 button2.onclick=chooseSide;
-
-function updateBoard(){
-    console.log("updateboard executes");
-    //eliminate all images
-    let images=querySelectorAll("img");
-    images.remove();
-    
-    for (let array of gameState.currentPosition){
-        for (let locAtion of array){
-            for (let member of squares){
-                if (addressToCodes(member.id)==locAtion ){
-                    let img=document.createElement("img");
-                    switch(getkey(gameState.currentPosition,array)){
-                            
-                        case "whitePawns":
-                            img.src="wikipedia/wP.png";
-                            member.appendChild(img);
-                            break;
-                        case "blackPawns":  
-                            img.src="wikipedia/bP.png";
-                            member.appendChild(img);
-                            break;
-                        case "whiteBishops":  
-                            img.src="wikipedia/wB.png";
-                            member.appendChild(img);
-
-                            break;
-                        case "blackBishops":  
-                            img.src="wikipedia/bB.png";
-                            member.appendChild(img);
-                            break;
-                        case "whiteKnights":  
-                            img.src="wikipedia/wN.png";
-                            member.appendChild(img);
-                            break;
-                        case "blackKnights":  
-                            img.src="wikipedia/bN.png";
-                            member.appendChild(img);
-                            break;
-                        case "whiteRooks":
-                            img.src="wikipedia/wR.png";
-                            member.appendChild(img);
-                            break;
-                        case "blackRooks":  
-                            img.src="wikipedia/bR.png";
-                            member.appendChild(img);
-                            break;
-                        case "whiteQueens":  
-                            img.src="wikipedia/wQ.png";
-                            member.appendChild(img);
-    
-                            break;
-                        case "blackQueens":  
-                            img.src="wikipedia/bQ.png";
-                            member.appendChild(img);
-                            break;
-                        case "whiteKing":  
-                            img.src="wikipedia/wK.png";
-                            member.appendChild(img);
-                            break;
-                        case "blackKing":  
-                            img.src="wikipedia/bK.png";
-                            member.appendChild(img);
-                            break;
-
-                    
-                    
-                    
-                    
-                        }
-                        break;
-                }
-            }
-        }
-    }
-    
-}
 
 
 
@@ -94,180 +18,74 @@ function chooseSide(){
     button2.textContent="play as black";
     button1.onclick=whiteVsAi;
     button2.onclick=blackVsAi;
-    
-
 }
 
-
-function shadeSquares(){
-    var oddRank=true;
-    for(var i=0;i<squares.length;i++){
-        
-        if (i%8==0){
-            oddRank=!oddRank;
-        }
-        if(oddRank){
-            if((i%2)==0){
-
-                squares[i].style.backgroundColor="#769656";
-                
-            }
-            else squares[i].style.backgroundColor="#eeeed2";
-        }
-        else{
-            if((i%2)!=0){
-
-                squares[i].style.backgroundColor="#769656";
-            }
-            else squares[i].style.backgroundColor="#eeeed2";
-        }
-        squares[i].addEventListener("click",highlight,{capture:true})
-        
-        
-    }
-}
-var currentPieceType='';
-var currentPieceColor='white';
-function startup(){
-    button1.textContent="Quit game";
-    shadeSquares();
-    
-    boardContainer.style.display="block";
- 
-
-}
 function twoPlayer(){
     button2.textContent="Rotate board";
     startup();
-    button2.onclick=rotateBoard;
-    
-  
+    button2.onclick=rotateBoard; 
 }
+
+function startup(){
+    button1.textContent="Quit game";
+    boardContainer.style.display="block";
+    currentPossibleMoves=initialPossibleMoves;  
+    //because of a move generation optimization trick where avoidsCheck() also generates opponent moves
+}
+
 function blackVsAi(){
     rotateBoard();
     button2.style.display="none";
-    startup();
-    
-   
+    startup(); 
 }
+
 function whiteVsAi(){
     button2.style.display="none";
-    startup();
-    
+    startup();   
 }
-var currentSquare;
-var currentPossibleDestinations;
-let lastClicked;
-function highlight(e){
-    
-
-    if(lastClicked) {
-        lastClicked.classList.remove('clicked');
-        
-
-    }
-    
-    e.currentTarget.classList.add('clicked');
-    if(lastClicked && lastClicked.firstElementChild){
-        
-        if(currentPossibleDestinations){
-            console.log(currentPossibleDestinations);
-            for (let move in currentPossibleDestinations){
-                
-                if (move[1]==addressToCodes(e.currentTarget.id)){
-                    makeMove(addressToCodes(lastClicked.id),move,gameState.currentPosition,currentPieceColor);
-                    console.log("move updated internally");
-                    updateBoard();
-                    checkStatus();
-                    lastClicked=null;
-                    break;
-                }
-            }
-        }
-        
-    }
-    else{
-        if(e.currentTarget.firstElementChild){
-        
-            currentSquare=addressToCodes(e.currentTarget.id);
-            
-
-            for (let array of Object.values(gameState.currentPosition)){
-                for (let code of array){
-                    if (code[0]==currentSquare[0] && code[1]== currentSquare[1]){
-
-                        currentPieceType=getkey(gameState.currentPosition,array);
-                        console.log(currentPieceType);
-                        currentPieceColor=(currentPieceType.includes('white'))? 'white':"black";
-                        
-                        break;
-                    }
-                }
-                
-            }
-            currentPossibleDestinations=collectLegalDestinations(currentSquare,currentPieceColor);
-            
-            
-        }
-    }
-
-        
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 function rotateBoard(){
-
-  
-    if (board.style.flexDirection=="column-reverse"){
-        board.style.flexDirection="column";
-        for (let rank of ranks){
-            rank.style.flexDirection="row";
-        }
-        
-    }
-    else{
-        board.style.flexDirection="column-reverse";
-        for (let rank of ranks){
-            rank.style.flexDirection="row-reverse";
-        }
-    }
-        
+    board.style.flexDirection=(board.style.flexDirection=="column-reverse")? "column":"column-reverse";
+    for (let rank of ranks) rank.style.flexDirection=(rank.style.flexDirection=="row-reverse")? "row":"row-reverse";   
 }
 
+let origin,highlighted;
 
+for (let square of squares){
+    square.addEventListener("click",highlight);
+    square.addEventListener("click",moveHandler,);
+}
 
+function highlight(e){
+    highlighted=document.querySelector('.highlighted');
+    if(originValidation(e.currentTarget)) e.currentTarget.classList.add('highlighted');
+    if(highlighted==null) return;
+    highlighted.classList.remove('highlighted');       
+}
+//clear origin after a piece is moved
+function originValidation(origin){
+    if(!(origin)) return false;
+    if (!(origin.firstElementChild )) return false;
+    if(!(origin.firstElementChild.classList.contains(gameState.sideToPlay))) return false;
+    return true;
+}
+let currentPossibleMoves=[];
 
+function moveValidation(moveSquares){
+    for (let move in currentPossibleMoves){
+        if(move[1]==moveSquares && avoidsheck(move)) return true;
+    }
+}
+function moveHandler(e){
+    origin=document.querySelector('.origin');
+    if(origin) origin.classList.remove('.origin');
+    e.currentTarget.classList.add('.origin');
+    if (originValidation(origin)==false) return;
+    moveSquares=[idTocodes(origin.id),idTocodes(e.currentTarget.id)]
+    if(moveValidation(moveSquares)==false) return;
+    moveAccept();
+    e.currentTarget.classList.remove('.origin');
+}
+const initialPossibleMoves=[["normal",[[0,1],[0,2]]],]
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    
