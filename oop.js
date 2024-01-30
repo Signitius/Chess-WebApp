@@ -1,16 +1,16 @@
 
 
 
-export function collectLegalDestinations(square,currentPieceColor){
+export function collectLegalDestinations(square){
     if(gameState.sideToPlay==currentPieceColor){
         
 
         let castle=true;
-        let movesToCheck=collectSemiLegalDestinations(square,castle,currentPieceColor);
+        let movesToCheck=collectSemiLegalDestinations(square,castle);
         
         var verifiedMoves=[];
         for (let move of movesToCheck){
-            if (avoidsCheck(square,move,currentPieceColor)){
+            if (avoidsCheck(square,move)){
                 verifiedMoves.push(move);
             }
 
@@ -23,13 +23,13 @@ export function collectLegalDestinations(square,currentPieceColor){
     }
     
 }
-function collectSemiLegalAttackDestinations(square,currentPieceColor){
+function collectSemiLegalAttackDestinations(square){
     let castle=false;
-    let semiLegalDest=collectSemiLegalDestinations(square,castle,currentPieceColor);
+    let semiLegalDest=collectSemiLegalDestinations(square,castle);
     
     return semiLegalDest;
 }
-function collectSemiLegalDestinations(square,castle,currentPieceColor){
+function collectSemiLegalDestinations(square,castle){
     let destinationsArray=[];
    
     for (let array of Object.values(gameState.currentPosition)){
@@ -48,35 +48,35 @@ function collectSemiLegalDestinations(square,castle,currentPieceColor){
     switch (pieceType){
 
         case "whitePawns":
-            destinationsArray=destinationsArray.concat(whitePawnMove(square,currentPieceColor));
+            destinationsArray=destinationsArray.concat(whitePawnMove(square));
             break;
 
         case "blackPawns":
-            destinationsArray=destinationsArray.concat(blackPawnMove(square,currentPieceColor));
+            destinationsArray=destinationsArray.concat(blackPawnMove(square));
             break;
 
         case "whiteBishops"||"blackBishops":
-            destinationsArray=destinationsArray.concat(bishopMove(square,currentPieceColor));
+            destinationsArray=destinationsArray.concat(bishopMove(square));
             break;
 
         case "whiteknights"||"blackKnights":
-            destinationsArray=destinationsArray.concat(knightmove(square,currentPieceColor));
+            destinationsArray=destinationsArray.concat(knightmove(square));
             break;
 
         case "whiteRooks"||"blackRooks":
-            destinationsArray=destinationsArray.concat(rookMove(square,currentPieceColor));
+            destinationsArray=destinationsArray.concat(rookMove(square));
             break;
 
         case "whiteQueens"||"blackQueens":
-            destinationsArray=destinationsArray.concat(queenMove(square,currentPieceColor));
+            destinationsArray=destinationsArray.concat(queenMove(square));
             break;
 
         case "whiteKing":
-            destinationsArray=destinationsArray.concat(whiteKingMove(square,castle,currentPieceColor));
+            destinationsArray=destinationsArray.concat(whiteKingMove(square,castle));
             break;
 
         case "blackKing":
-            destinationsArray=destinationsArray.concat(blackKingMove(square,castle,currentPieceColor));
+            destinationsArray=destinationsArray.concat(blackKingMove(square,castle));
             break;
 
         
@@ -91,7 +91,7 @@ function collectSemiLegalDestinations(square,castle,currentPieceColor){
 
 }
 
-function whitePawnMove(square,currentPieceColor){
+function whitePawnMove(square){
     let moveArray=[];
     let oneStepAbove=[square[0],square[1]+1];
     let twoStepsAbove=[square[0],square[1]+2];
@@ -105,7 +105,7 @@ function whitePawnMove(square,currentPieceColor){
     //2 squares up on first pawn move
     if(square[1]==1){
         
-        if(checkOccupant(oneStepAbove,currentPieceColor)==0 && checkOccupant(twoStepsAbove,currentPieceColor)==0){
+        if(checkOccupant(oneStepAbove)==0 && checkOccupant(twoStepsAbove)==0){
             pieceTransfer=["normal",twoStepsAbove];
             
             moveArray.push(pieceTransfer);
@@ -113,7 +113,7 @@ function whitePawnMove(square,currentPieceColor){
         }
     }
     //one square up on first pawnmove
-    if(checkOccupant(oneStepAbove,currentPieceColor)==0){
+    if(checkOccupant(oneStepAbove)==0){
         pieceTransfer=["normal",oneStepAbove];
         
         moveArray.push(pieceTransfer);
@@ -123,7 +123,7 @@ function whitePawnMove(square,currentPieceColor){
 
     //pawncapture logic
     let whitePawnDirections=['short-range',[-1,1],[1,1]];
-    let captureArray=generalMove(square,whitePawnDirections,currentPieceColor);
+    let captureArray=generalMove(square,whitePawnDirections);
     moveArray=moveArray.concat(captureArray);
 
     //empassant logic
@@ -131,13 +131,13 @@ function whitePawnMove(square,currentPieceColor){
         let oneStepLeft=[square[0]-1,square[1]];
         let oneStepRight=[square[0]+1,square[1]];
         
-        if(oneStepLeft in gameState._4thRankBlackPawnHistory===false && checkOccupant(oneStepLeft,currentPieceColor)==1){
+        if(oneStepLeft in gameState._4thRankBlackPawnHistory===false && checkOccupant(oneStepLeft)==1){
             pieceTransfer=["empassant",leftUpperCorner]
             
             moveArray.push(pieceTransfer);
             
         }
-        if(oneStepRight in gameState._5thRankWhitePawnHistory===false && checkOccupant(oneStepRight,currentPieceColor)==1){
+        if(oneStepRight in gameState._5thRankWhitePawnHistory===false && checkOccupant(oneStepRight)==1){
             pieceTransfer=["empassant",rightUpperCorner]
             
             moveArray.push(pieceTransfer);
@@ -148,7 +148,7 @@ function whitePawnMove(square,currentPieceColor){
 
     //promotion logic
 
-    if(square[1]==6 && checkOccupant(oneStepAbove,currentPieceColor)==0){
+    if(square[1]==6 && checkOccupant(oneStepAbove)==0){
         pieceTransfer=["promotion",oneStepAbove];
         
         moveArray.push(pieceTransfer);
@@ -157,114 +157,95 @@ function whitePawnMove(square,currentPieceColor){
     return moveArray;
 
 }
-function blackPawnMove(square,currentPieceColor){
+function blackPawnMove(square){
     
-        let moveArray=[];
-        let oneStepAbove=[square[0],square[1]-1];
-        let twoStepsAbove=[square[0],square[1]-2];
+    let moveArray=[];
+    let oneStepAbove=[square[0],square[1]-1];
+    let twoStepsAbove=[square[0],square[1]-2];
     
-        let leftUpperCorner=[square[0]-1,[1]-1];
-        let rightUpperCorner=[square[0]+1,[1]-1];
-        let pieceTransfer;
-    
-     
-        
-        //2 squares up on first pawn move
-        if(square[1]==6){
+    let leftUpperCorner=[square[0]-1,[1]-1];
+    let rightUpperCorner=[square[0]+1,[1]-1];
+    let pieceTransfer;
+
+    if(square[1]==6 && checkOccupant(oneStepAbove)==0 && checkOccupant(twoStepsAbove)==0){
+        pieceTransfer=["normal",[square,twoStepsAbove]];    
+        moveArray.push(pieceTransfer);    
+    }
+    if(checkOccupant(oneStepAbove)==0){
+        pieceTransfer=["normal",oneStepAbove];     
+        moveArray.push(pieceTransfer);     
+    }  
+  
+    if(square[1]==4){
+        let oneStepLeft=[square[0]-1,square[1]];
+        let oneStepRight=[square[0]+1,square[1]];
             
-            if(checkOccupant(oneStepAbove,currentPieceColor)==0 && checkOccupant(twoStepsAbove,currentPieceColor)==0){
-                pieceTransfer=["normal",twoStepsAbove];
-                
-                moveArray.push(pieceTransfer);
-                
-            }
-        }
-        //one square up on first pawnmove
-        if(checkOccupant(oneStepAbove,currentPieceColor)==0){
-            pieceTransfer=["normal",oneStepAbove];
-            
+        if(oneStepLeft in gameState._5thRankWhitePawnHistory===false && checkOccupant(oneStepLeft)==1){
+            pieceTransfer=["empassant",leftUpperCorner]
             moveArray.push(pieceTransfer);
-            
-        }  
-        
-    
-        //pawncapture logic
-        let blackPawnDirections=['short-range',[-1,-1],[1,-1]];
-        let captureArray=generalMove(square,blackPawnDirections,currentPieceColor);
-        moveArray=moveArray.concat(captureArray);
-    
-        //empassant logic
-        if(square[1]==4){
-            let oneStepLeft=[square[0]-1,square[1]];
-            let oneStepRight=[square[0]+1,square[1]];
-            
-            if(oneStepLeft in gameState._5thRankWhitePawnHistory===false && checkOccupant(oneStepLeft,currentPieceColor)==1){
-                pieceTransfer=["empassant",leftUpperCorner]
                 
-                moveArray.push(pieceTransfer);
-                
-            }
-            if(oneStepRight in gameState._5thRankWhitePawnHistory===false && checkOccupant(oneStepRight,currentPieceColor)==1){
-                pieceTransfer=["empassant",rightUpperCorner]
-                
-                moveArray.push(pieceTransfer);
-                
-            }
         }
+        if(oneStepRight in gameState._5thRankWhitePawnHistory===false && checkOccupant(oneStepRight)==1){
+            pieceTransfer=["empassant",rightUpperCorner]
+            moveArray.push(pieceTransfer);
+                
+        }
+    }
     
     
         //promotion logic
     
         if(square[1]==1){
-            if(checkOccupant(oneStepAbove,currentPieceColor)==0){
+            if(checkOccupant(oneStepAbove)==0){
                 pieceTransfer=["promotion",oneStepAbove];
                 moveArray.push(pieceTransfer);
             }
-            if (checkOccupant(leftUpperCorner,currentPieceColor)==1){
+            if (checkOccupant(leftUpperCorner)==1){
                 pieceTransfer=["promotional capture",leftUpperCorner];
                 moveArray.push(pieceTransfer);
             }
-            if (checkOccupant(rightUpperCorner,currentPieceColor)==1){
+            if (checkOccupant(rightUpperCorner)==1){
                 pieceTransfer=["promotional capture",rightUpperCorner];
                 moveArray.push(pieceTransfer);
             }
-            
-        }
-        
-        return moveArray;
-    
-    
+        } 
+        return moveArray; 
 }
 
-function bishopMove(square,currentPieceColor){
-    let bishopDirections=["long-range",[-1,1],[1,1],[1,-1],[-1,-1]];
-    return generalMove(square,bishopDirections,currentPieceColor);
+function bishopMove(square){
+    let bishopDirections=
+    
+    return generalMove(square,bishopDirections);
 }
-function knightmove(square,currentPieceColor){
-    let knightDirections=["short-range",[-2,1],[-2,-1],[2,-1],[2,1],[-1,-2],[-1,2],[1,-2],[1,2]];
-    return generalMove(square,knightDirections,currentPieceColor);
+function knightmove(square){
+    let knightDirections=
+    
+    return generalMove(square,knightDirections);
 }
-function rookMove(square,currentPieceColor){
-    let rookDirections=["long-range",[0,1],[-1,0],[1,0],[0,-1]];
-    return generalMove(square,rookDirections,currentPieceColor);
+function rookMove(square){
+    let rookDirections=
+    
+    return generalMove(square,rookDirections);
 }
-function queenMove(square,currentPieceColor){
-    let queenDirections=["long-range",[0,1],[-1,0],[1,0],[0,-1],[-1,1],[1,1],[1,-1],[-1,-1]];
-    return generalMove(square,queenDirections,currentPieceColor);
+function queenMove(square){
+    let queenDirections=
+    
+    return generalMove(square,queenDirections);
 }
-function kingMove(square,currentPieceColor){
+function kingMove(square){
     console.log(currentPieceColor);
-    let kingDirections=["short-range",[0,1],[-1,0],[1,0],[0,-1],[-1,1],[1,1],[1,-1],[-1,-1]];
-    return generalMove(square,kingDirections,currentPieceColor);
+    let kingDirections=
+    
+    return generalMove(square,kingDirections);
 }
     
-function blackKingMove(square,castle,currentPieceColor){
-    let kingMoveList=kingMove(square,currentPieceColor);
+function blackKingMove(square,castle){
+    let kingMoveList=kingMove(square);
     if (castle==true){
         if (!(gameState.blackKingRookHasMoved||gameState.blackKingHasMoved)){
             let fSquare=[square[0]+1,square[1]];
             let gSquare=[square[0]+2,square[1]];
-            if(!(isAttacked(square,currentPieceColor)) && checkOccupant(fSquare,currentPieceColor)==0 && !(isAttacked(fSquare,currentPieceColor)) && checkOccupant(gSquare,currentPieceColor)==0 && !isAttacked(gSquare,currentPieceColor)){
+            if(!(isAttacked(square)) && checkOccupant(fSquare)==0 && !(isAttacked(fSquare)) && checkOccupant(gSquare)==0 && !isAttacked(gSquare)){
                 let pieceTransfer=['blackcastling-kingside',gSquare];
                 
                 kingMoveList.push(pieceTransfer);
@@ -276,7 +257,7 @@ function blackKingMove(square,castle,currentPieceColor){
             let dSquare=[square[0]-1,square[1]];
             let cSquare=[square[0]-2,square[1]];
             let  bSquare=[square[0]-3,square[1]];
-            if(!(isAttacked(square,currentPieceColor)) && checkOccupant(dSquare,currentPieceColor)==0 && !(isAttacked(dSquare,currentPieceColor)) && checkOccupant(cSquare,currentPieceColor)==0 && !isAttacked(cSquare,currentPieceColor) && checkOccupant(bSquare,currentPieceColor)==0){
+            if(!(isAttacked(square)) && checkOccupant(dSquare)==0 && !(isAttacked(dSquare)) && checkOccupant(cSquare)==0 && !isAttacked(cSquare) && checkOccupant(bSquare)==0){
                 let pieceTransfer=['blackcastling-Queenside',cSquare];
                 
                 kingMoveList.push(pieceTransfer);
@@ -288,13 +269,13 @@ function blackKingMove(square,castle,currentPieceColor){
     return kingMoveList;
     
 }
-function whiteKingMove(square,castle,currentPieceColor){
+function whiteKingMove(square,castle){
     let kingMoveList=kingMove(square);
     if (castle==true){
         if (!(gameState.whiteKingRookHasMoved||gameState.whiteKingHasMoved)){
             let fSquare=[square[0]+1,square[1]];
             let gSquare=[square[0]+2,square[1]];
-            if(!(isAttacked(square,currentPieceColor)) && checkOccupant(fSquare,currentPieceColor)==0 && !(isAttacked(fSquare,currentPieceColor)) && checkOccupant(gSquare,currentPieceColor)==0 && !isAttacked(gSquare,currentPieceColor)){
+            if(!(isAttacked(square)) && checkOccupant(fSquare)==0 && !(isAttacked(fSquare)) && checkOccupant(gSquare)==0 && !isAttacked(gSquare)){
                 let pieceTransfer=['whitecastling-kingside',gSquare];
                 
                 kingMoveList.push(pieceTransfer);
@@ -306,7 +287,7 @@ function whiteKingMove(square,castle,currentPieceColor){
             let dSquare=[square[0]-1,square[1]];
             let cSquare=[square[0]-2,square[1]];
             let  bSquare=[square[0]-3,square[1]];
-            if(!(isAttacked(square,currentPieceColor)) && checkOccupant(dSquare,currentPieceColor)==0 && !(isAttacked(dSquare,currentPieceColor)) && checkOccupant(cSquare,currentPieceColor)==0 && !isAttacked(cSquare,currentPieceColor) && checkOccupant(bSquare,currentPieceColor)==0){
+            if(!(isAttacked(square)) && checkOccupant(dSquare)==0 && !(isAttacked(dSquare)) && checkOccupant(cSquare)==0 && !isAttacked(cSquare) && checkOccupant(bSquare)==0){
                 let pieceTransfer=['whitecastling-Queenside',cSquare];
                 
                 kingMoveList.push(pieceTransfer);
@@ -318,60 +299,8 @@ function whiteKingMove(square,castle,currentPieceColor){
     return kingMoveList;
 }
     
-function attacks(square,directionsArray,position=gameState.currentPosition){
-    let piece;
-    for (let array of Object.values(position)){
-        for (let code of array){
-            if (code[0]==square[0] && code[1]== square[1]){
 
-                piece=getkey(position,array);
-                
-                
-                break;
-            }
-        }
-        
-    }
-    switch(piece){
-        
-    }
-
-    let attackedSquares=[]
-    
-    for(let direction of directionsArray){
-        var newLocation=[square[0]+direction[0],square[1]+direction[1]];
-        while (newLocation[0]>-1 && newLocation[0]<8 && newLocation[1]>-1 && newLocation[1]<8){
-    
-            attackedSquares.push(newLocation);
-
-            if (directionsArray[0]=="short-range")break;
-
-            let occupied=false;
-            for (let array of Object.values(position)){
-                for (let code of array){
-                    if (code[0]==newLocation[0] && code[1]== newLocation[1]){
-                        occupied=true;
-                        break;
-                    }
-                }
-                    
-            }
-            if (occupied==true){
-                break;
-            }
-            
-            newLocation=[square[0]+direction[0],square[1]+direction[1]];
-        }
-        
-    }
-    
-    return attackedSquares;
-
-
-}
-
-
-export function makeMove(origin,typeAndDestination,position,currentPieceColor){
+export function makeMove(origin,typeAndDestination,position){
     switch (typeAndDestination[0]){
             
         case 'empassant': 
@@ -403,7 +332,7 @@ export function makeMove(origin,typeAndDestination,position,currentPieceColor){
             break;
             
         case 'promotion': 
-            promotion(origin,typeAndDestination[1],position,currentPieceColor);
+            promotion(origin,typeAndDestination[1],position);
             break;
             
         case 'promotional capture': 
@@ -455,7 +384,7 @@ function capture(origin,move,position){
     
     generalMover(origin,move,position);
 }
-function promotion(origin,move,position,currentPieceColor){
+function promotion(origin,move,position){
     for (let array of Object.values(position)){
         for (let code of array){
             if (code[0]==origin[0] && code[1]== origin[1]){

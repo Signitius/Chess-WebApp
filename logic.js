@@ -68,7 +68,7 @@ function newImage(location){
     let locationId=codesToId(location)
     let parentSquare=document.getElementById(locationId);
     for (let source in imageSources){
-        if(source.contains(entry[0])==false) continue;
+        if(source.contains(entry[0])===false) continue;
         let img=document.createElement("img");
         img.src=source;
         parentSquare.appendChild(img);      
@@ -76,18 +76,18 @@ function newImage(location){
 }
 function updateStatus(){}
 function checkStatus(){}
-function moveGenerate(){}
 
-let copyPosition;
+
+let futurePosition;
 
 export function avoidsCheck(move){
-    copyPosition=JSON.parse(JSON.stringify(currentPosition));
-    makeMove(move,copyPosition);
-    return !(isCheck(copyPosition));
+    futurePosition=JSON.parse(JSON.stringify(currentPosition));
+    makeMove(move,futurePosition);
+    return !(isCheck(futurePosition));
 }
 
 function isCheck(position){
-    let kingPosition=(sideToPlay=="white")? position["whiteKing"][0]:position["blackKing"][0];
+    let kingPosition=(sideToPlay==="white")? position["whiteKing"][0]:position["blackKing"][0];
     return isAttacked(kingPosition,position);      
 }
 
@@ -99,7 +99,7 @@ function isAttacked(square,position,){
     let squareAttacked=false;
 
     for(let move of opponentPossibleMoves){
-        squareAttacked=(move[1][1]==square)? true:false;
+        squareAttacked=(move[1][1]===square)? true:false;
         break;
     }
     return squareAttacked;   
@@ -124,36 +124,132 @@ export function idToCodes(address){
 
 function getkey(object,value){ 
     for (let key of Object.keys(object)){     
-        if (object[key]== value) return key;    
+        if (object[key]=== value) return key;    
     }
+    console.log('value does not exist');
+    return null;
 }
 
-function generalMoves(){
+
+function generalMoves(opponentColor,position){
     let moveArray=[];
-    let attacked=attacks(square);
+    let attacked=attacks(opponentColor,position);
     for(let moveCodes of attacked){
-        if(checkOccupant(moveCodes[1])==0) moveArray.push(["normal",moveCodes[1]]);
-        if(checkOccupant(moveCodes[1])==1) moveArray.push(["capture",moveCodes[1]]);
+        if(checkOccupant(moveCodes[1])===1){
+            moveArray.push(["capture",moveCodes[1]]);
+            continue;
+        }
+        //eliminate pawn diagonal movement if not capture
+        if (belongsTo(position,moveCodes[0])===whitePawn||belongsTo(position,moveCodes[0])===blackPawn) continue;
+        if(checkOccupant(moveCodes[1])===0) moveArray.push(["normal",moveCodes[1]]);
+
     }
     return moveArray;
 }
 
-function specialMoves(){}
-function attacks(){}
+function specialMoves(){
 
-function checkOccupant(color,position){
-    let color
-    let occupancyStatus=0;
-    for (let array of Object.entries(position)){
-        if (array[1].contains(square)==false) continue;
-        color=(array[0].includes('white'))? 'white':'black';
-        occupancyStatus=(color==checkingColor)? 2:1;
-        return occupancyStatus;
+}
+function attacks(opponentColor,position){
+    let moveCodes=[];
+    let DirectionArrayHolder={
+        //duplication endured to match properties (and property order) to those in currentPosition for faster association
+        whitePawn:['short-range',[-1,1],[1,1]],
+        blackPawn:['short-range',[-1,-1],[1,-1]],
+        whiteBishop:["long-range",[-1,1],[1,1],[1,-1],[-1,-1]],
+        blackBishop:["long-range",[-1,1],[1,1],[1,-1],[-1,-1]],
+        whiteKnight:["short-range",[-2,1],[-2,-1],[2,-1],[2,1],[-1,-2],[-1,2],[1,-2],[1,2]],
+        blackKnight:["short-range",[-2,1],[-2,-1],[2,-1],[2,1],[-1,-2],[-1,2],[1,-2],[1,2]],
+        whiteRook:["long-range",[0,1],[-1,0],[1,0],[0,-1]],
+        blackRook:["long-range",[0,1],[-1,0],[1,0],[0,-1]],
+        blackQueen:["long-range",[0,1],[-1,0],[1,0],[0,-1],[-1,1],[1,1],[1,-1],[-1,-1]],
+        whiteQueen:["long-range",[0,1],[-1,0],[1,0],[0,-1],[-1,1],[1,1],[1,-1],[-1,-1]],
+        whiteKing:["short-range",[0,1],[-1,0],[1,0],[0,-1],[-1,1],[1,1],[1,-1],[-1,-1]],
+        blackKing:["short-range",[0,1],[-1,0],[1,0],[0,-1],[-1,1],[1,1],[1,-1],[-1,-1]],
     }
-    return occupancyStatus;
+    for(let key of Object.keys(position)){
+        if (key.includes(opponentColor)===false) continue;
+        directions=DirectionArrayHolder[key];
+        for(let member of position[key]) moveCodes.push(collectMoves(member,directions,position));
+    }
+    return moveCodes;
+}
+
+function collectMoves(square,directions,position){
+    let collectedMoves=[];
+    for(let direction of directions){
+        if(direction==="" || direction==="") continue;
+        let range=directions[0];
+        collectedMoves.push(generateMoves(square,range,direction,position));
+    }
+    return collectedMoves;
+}
+
+function generateMoves(square,range,direction,position){
+    let attackMoves=[]
+    var newLocation=[square[0]+direction[0],square[1]+direction[1]];
+    while (newLocation[0]>-1 && newLocation[0]<8 && newLocation[1]>-1 && newLocation[1]<8){
+        attackMoves.push([square,newLocation]);
+        if (range==="short-range")break;
+        if (belongsTo(position,newLocation)!=null) break;
+        newLocation=[newLocation[0]+direction[0],newLocation[1]+direction[1]];
+    }
+    return attackMoves;        
+}
+
+function checkOccupant(square,opponentColor,position){
+    let color;
+    let occupancyStatus=0;
+    let type=belongsTo(position,square);
+
+    if (type===null) return occupancyStatus;
+    color=(type.includes('white'))? 'white':'black';
+    occupancyStatus=(color===opponentColor)? 2:1;
+    return occupancyStatus;   
+}
+
+function belongsTo(position,square){
+    for (let array of Object.entries(object)){
+        if (array[1].contains(square)) return array[0]; 
+    }
+    console.log('square not found');
+    return null;
 }
 
 
+function has (position,square){
+    for (let array of Object.entries(position)){
+        if (array[1].contains(square)) return true; 
+    }
+    return false;
+}
+
+
+
+
+
+
+
+
+
+
+
+let occuredOnce=[];
+let occuredTwice=[];
+
+function threeFoldStatusUpdate(sideToPlay,position){
+    let repeatable=[sideToPlay,position];
+    let positionString=JSON.stringify(repeatable);
+    if (occuredOnce.contains(positionString)){
+        occuredTwice.push(positionString);
+        return;
+    }
+    if (occuredTwice.contains(positionString)){
+        threeFoldDraw();
+        return;
+    }
+    occuredOnce.push(positionString)
+}
 
 
 
