@@ -66,10 +66,11 @@ function highlight(e){
 function originValidation(origin){
     if(!(origin)) return false;
     if (!(origin.firstElementChild )) return false;
-    if(!(origin.firstElementChild.classList.contains(gameState.sideToPlay))) return false;
+    if(!(origin.firstElementChild.classList.contains(sideToPlay))) return false;
     return true;
 }
 let currentPossibleMoves=[];
+
 
 function moveValidation(moveSquares){
     for (let move in currentPossibleMoves){
