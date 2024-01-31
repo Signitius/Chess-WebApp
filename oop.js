@@ -29,17 +29,7 @@ export function makeMove(origin,typeAndDestination,position){
         case 'blackcastling-Queenside': 
             blackQueenCastle(position);
             break;
-            
-        case 'promotion': 
-            promotion(origin,typeAndDestination[1],position);
-            break;
-            
-        case 'promotional capture': 
-            promotionalCapture(origin,typeAndDestination[1],position);
-            break;
     }
-    
-    sideToPlay=(sideToPlay=="black")? "white":"black";
 }
 function generalMover(origin,move,position){
     for (let array of Object.values(position)){

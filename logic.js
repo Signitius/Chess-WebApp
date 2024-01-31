@@ -1,26 +1,27 @@
 //game status beginning
 
-sideToPlay="white"
-whiteKingHasMoved=false;
-whiteKingRookHasMoved=false;
-whiteQueenRookHasMoved=false;
+
+let sideToPlay="white"
+let whiteKingMoved=false;
+let whiteKingRookMoved=false;
+let whiteQueenRookMoved=false;
 
 
-blackKingHasMoved=false;
-blackKingRookHasMoved=false;
-blackQueenRookHasMoved=false;
+let blackKingMoved=false;
+let blackKingRookMoved=false;
+let blackQueenRookMoved=false;
         
     
-_50MoveRuleCount=0;
+let _50MoveRuleCount=0;
         
         
-repeatablePastpositions=[];//each is a json string of its corresponding currentPosition with sideToPlay concatenated
+let repeatablePastpositions=[];//each is a json string of its corresponding currentPosition with sideToPlay concatenated
 
 
-_4thRankWhitePawnHistory=[];// to help with empassant
-_5thRankBlackPawnHistory=[];
+let _4thRankWhitePawnHistory=[];// to help with empassant
+let _5thRankBlackPawnHistory=[];
         
-currentPosition={
+let currentPosition={
     //(8*8) square cordinates to simplify move calculation
 
     whitePawn:[[0,1],[1,1],[2,1],[3,1],[4,1],[5,1],[6,1],[7,1]],
@@ -48,8 +49,48 @@ export function moveAccept(move){
     updateBoard();
     checkStatus();
 }
+function updateStatus(){
+    fiftyMoveRuleUpdate();
+    empassantUpdate();
+    castlingUpdate();
+    positionUpdate();
+    threeFoldStatusUpdate();
+    sideToPlayUpdate();
+}
+
+function checkStatus(){
+    if(checkmate());
+    if(stalemate());
+    if(fiftyMoveDraw());
+    if(threeFoldDrawn());
+    if(mateImpossibilityDraw());
+    newTurn();
+}
+function fiftyMoveRuleUpdate(){}
+function empassantUpdate(){}
+function castlingUpdate(){}
+function positionUpdate(){
+    //implement pawn promotion
+}
+function sideToPlayUpdate(){
+    sideToPlay=(sideToPlay=="black")? "white":"black";
+}
 
 
+function checkmate(){}
+function stalemate(){}
+function fiftyMoveDraw(){}
+function threeFoldDrawn(){}
+function mateImpossibilityDraw(){}
+
+
+export let possibleMoves=[];
+export function newTurn(){
+    let newPossibleMoves=[];
+    newPossibleMoves.push(generalMoves(currentPosition));
+    newPossibleMoves.push(specialMoves());
+    possibleMoves=newPossibleMoves;
+}
 
 
 function updateBoard(){
@@ -62,7 +103,7 @@ function updateBoard(){
 
 function newImage(location){
     let imageSources=["wikipedia/blackRook.png","wikipedia/blackKnight.png","wikipedia/blackBishop.png",
-    "wikipedia/blackQueen.png","wikipedia/blackKing.png","wikipedia/blackPawhiteKnight.png",
+    "wikipedia/blackQueen.png","wikipedia/blackKing.png","wikipedia/blackPawn.png",
     "wikipedia/whitePawn.png","wikipedia/whiteRook.png","wikipedia/whiteKnight.png",
     "wikipedia/whiteBishop.png","wikipedia/whiteQueen.png","wikipedia/whiteKing.png"]
 
@@ -76,15 +117,13 @@ function newImage(location){
         parentSquare.appendChild(img);      
     }
 }
-function updateStatus(){}
-function checkStatus(){}
 
 
 let futurePosition;
 
 export function avoidsCheck(move){
     futurePosition=JSON.parse(JSON.stringify(currentPosition));
-    makeMove(move,futurePosition);
+    positionUpdate();(move,futurePosition);
     return !(isCheck(color,futurePosition));
 }
 
@@ -242,11 +281,11 @@ function collectPawnMoves(square,key){
 }
 
 //castling
-whiteKingCastleList=[[4,0],[5,0],[6,0]]   //e1,f1,g1 squares
-blackKingCastleList=[[4,7],[5,7],[6,7]]
+let whiteKingCastleList=[[4,0],[5,0],[6,0]]   //e1,f1,g1 squares
+let blackKingCastleList=[[4,7],[5,7],[6,7]]
 
-whiteQueenCastleList=[[4,0],[3,0][2,0],[1,0]]
-blackQueenCastleList=[[4,7],[3,7][2,7],[1,7]]
+let whiteQueenCastleList=[[4,0],[3,0][2,0],[1,0]]
+let blackQueenCastleList=[[4,7],[3,7][2,7],[1,7]]
 
 function castlingValid(attackCheckList,kingMoved,rookMoved){
     if(areAttacked(opponentColor,attackCheckList,currentPosition)) return false;
@@ -262,13 +301,20 @@ function castlingValid(attackCheckList,kingMoved,rookMoved){
 function castleMoves(color){
     let castleMoveList;
     if(color=='white'){
-        if(castlingValid())castleMoveList.push([whiteKingCasle,[],[]])
+        if(castlingValid(whiteKingCastleList,whiteKingMoved,whiteKingRookMoved))castleMoveList.push(['whiteKingCastle',[[4,0],[6,0]]]);
+        if(castlingValid(whiteQueenCastleList,whiteKingMoved,whiteQueenRookMoved))castleMoveList.push(['whiteQueenCastle',[[4,0],[1,0]]]);
     }
+    else{
+        if(castlingValid(blackKingCastleList,blackKingMoved,blackKingRookMoved))castleMoveList.push(['blackKingCastle',[[4,7],[6,7]]]);
+        if(castlingValid(blackQueenCastleList,blackKingMoved,blackQueenRookMoved))castleMoveList.push(['blackQueenCastle',[[4,7],[1,7]]]);
+    }
+    return castleMoveList;
 }
-    //must wrap an array around move codes
+    
 
 function attacks(color,position){
     let attackCodes=[];
+    let directions=[];
     let directionArrayHolder={
         //duplication endured to match properties (and property order) to those in currentPosition for faster association
         whitePawn:['short-range',[-1,1],[1,1]],
@@ -315,7 +361,6 @@ function generateMoves(square,range,direction,position){
 }
 
 function checkOccupant(square,color=sideToPlay,position=currentPosition){
-    let color;
     let occupancyStatus=0;
     let type=belongsTo(position,square);
 
@@ -326,8 +371,9 @@ function checkOccupant(square,color=sideToPlay,position=currentPosition){
 }
 
 function belongsTo(position,square){
-    for (let array of Object.entries(object)){
-        if (array[1].contains(square)) return array[0]; 
+    for (let array of Object.entries(position)){
+        let key=array[1];
+        if (key.contains(square)) return array[0]; 
     }
     console.log('square not found');
     return null;
@@ -353,17 +399,23 @@ function has (position,square){
 
 let occuredOnce=[];
 let occuredTwice=[];
-
-function threeFoldStatusUpdate(sideToPlay,position){
+let threeFoldDraw=false;
+//occurs after positionUpdate() and sideToPlayUpate();
+function threeFoldStatusUpdate(){
     let repeatable=[sideToPlay,position];
     let positionString=JSON.stringify(repeatable);
+    if (occuredTwice.contains(positionString)){
+        threeFoldDraw=true;
+        return;
+    }
     if (occuredOnce.contains(positionString)){
         occuredTwice.push(positionString);
         return;
     }
-    if (occuredTwice.contains(positionString)){
-        threeFoldDraw();
-        return;
-    }
-    occuredOnce.push(positionString)
+    
+    occuredOnce.push(positionString);
+}
+
+function resetThreeFold(){
+    //after a capture or promotion, or pawn move
 }

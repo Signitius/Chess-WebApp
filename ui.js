@@ -1,4 +1,4 @@
-import { moveAccept } from "./logic";
+import { moveAccept, newTurn,possibleMoves } from "./logic.js";
 
 const button1=document.querySelector('#button1');
 const button2=document.querySelector('#button2');
@@ -32,6 +32,7 @@ function initialiseBoard(){
     button1.textContent="Quit game";
     boardContainer.style.display="block";
     for (let square of squares) square.addEventListener("click",moveHandler);
+    newTurn();
 }
 
 function blackVsAi(){
@@ -50,7 +51,7 @@ function rotateBoard(){
     for (let rank of ranks) rank.style.flexDirection=(rank.style.flexDirection=="row-reverse")? "row":"row-reverse";   
 }
 
-let possibleMoves, alreadyClicked , highlighted;
+let alreadyClicked , highlighted;
 
 function moveHandler(e){
     highlighted=document.querySelector('.highlighted');
@@ -76,13 +77,13 @@ function destinationValidate(clickedSquare){
 }
 
 
-//themes
+/*themes
 natureTheme={
     darkSquares:'',lightSquares:'',boardContainer:'', moveSound:''
 }
 taylorSwiftTheme={}
 
-function changeTheme(){}
+function changeTheme(){}*/
 
 
 
