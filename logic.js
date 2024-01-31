@@ -94,7 +94,8 @@ function isCheck(position){
 export let opponentPossibleMoves=[];
 
 function isAttacked(square,position,){
-    //generates the opponents general move list(moves that depend on attacking a square) for next turn
+    /*Also generates the opponents general move list(moves that depend on attacking a square)
+     for next turn*/
     opponentPossibleMoves=generalMoves(opponentColor,position);
     let squareAttacked=false;
 
@@ -133,7 +134,7 @@ function getkey(object,value){
 
 function generalMoves(opponentColor,position){
     let moveArray=[];
-    let attacked=attacks(opponentColor,position);
+    let attacked=attackMoves(opponentColor,position);
     for(let moveCodes of attacked){
         if(checkOccupant(moveCodes[1])===1){
             moveArray.push(["capture",moveCodes[1]]);
@@ -146,11 +147,122 @@ function generalMoves(opponentColor,position){
     }
     return moveArray;
 }
-
-function specialMoves(){
-
+function nonAttackMoves(){}
+function nonAttackPawnMoves(key){
+    if(key==="whitePawn") return nonAttackWhitePawnMoves();
+    else return nonAttackBlackPawnMoves();
 }
-function attacks(opponentColor,position){
+function nonAttackWhitePawnMoves(){
+    let moveArray=[];
+    let pieceTransfer;
+
+    let oneStepLeft=[square[0]-1,square[1]];
+    let oneStepRight=[square[0]+1,square[1]];
+
+    let oneStepAbove=[square[0],square[1]+1];
+    let twoStepsAbove=[square[0],square[1]+2];  
+    let leftUpperCorner=[square[0]-1,[1]+1];
+    let rightUpperCorner=[square[0]+1,[1]+1]; 
+    
+
+    if(oneStepLeft[0]===-1) oneStepLeft=null;
+    if(oneStepRight[0]===8)oneStepRight=null;
+    // they also represent the case for left and right corners
+
+    //two squares up on first move
+    if(square[1]==1 && checkOccupant(oneStepAbove)==0 && checkOccupant(twoStepsAbove)==0){
+        pieceTransfer=["normal",[square,twoStepsAbove]];
+        moveArray.push(pieceTransfer);    
+        
+    }
+    //one square up 
+    if(checkOccupant(oneStepAbove)==0){
+        pieceTransfer=["normal",[square,oneStepAbove]];
+        moveArray.push(pieceTransfer); 
+    }
+    
+    //empassant
+    if(square[1]!=4)return moveArray;
+    if(oneStepLeft && oneStepLeft in _4thRankBlackPawnHistory===false && checkOccupant(oneStepLeft)==1){
+        pieceTransfer=["empassant",[square,leftUpperCorner]];
+        moveArray.push(pieceTransfer);
+    }
+    if( oneStepRight && oneStepRight in _5thRankWhitePawnHistory===false && checkOccupant(oneStepRight)==1){
+        pieceTransfer=["empassant",[square,rightUpperCorner]];
+        moveArray.push(pieceTransfer);
+    } 
+        return moveArray; 
+}
+
+function nonAttackBlackPawnMoves(){
+    let moveArray=[];
+    let pieceTransfer;
+
+    let oneStepLeft=[square[0]-1,square[1]];
+    let oneStepRight=[square[0]+1,square[1]];
+
+    let oneStepAbove=[square[0],square[1]-1];
+    let twoStepsAbove=[square[0],square[1]-2];
+    let leftUpperCorner=[square[0]-1,[1]-1];
+    let rightUpperCorner=[square[0]+1,[1]-1];
+
+    if(oneStepLeft[0]===-1) oneStepLeft=null;
+    if(oneStepRight[0]===8)oneStepRight=null;
+    // they also represent the case for left and right corners
+
+    //two steps up on first move
+    if(square[1]==6 && checkOccupant(oneStepAbove)==0 && checkOccupant(twoStepsAbove)==0){
+        pieceTransfer=["normal",[square,twoStepsAbove]];    
+        moveArray.push(pieceTransfer);    
+    }
+    //one step up
+    if(checkOccupant(oneStepAbove)==0){
+        pieceTransfer=["normal",[square,oneStepAbove]];     
+        moveArray.push(pieceTransfer);     
+    }  
+
+    //empassant
+    if(square[1]!=3)return moveArray;
+
+    if(oneStepLeft && oneStepLeft in _5thRankWhitePawnHistory===false && checkOccupant(oneStepLeft)==1){
+        pieceTransfer=["empassant",[square,leftUpperCorner]]
+        moveArray.push(pieceTransfer);       
+    }
+    if(oneStepRight && oneStepRight in _5thRankWhitePawnHistory===false && checkOccupant(oneStepRight)==1){
+        pieceTransfer=["empassant",[square,rightUpperCorner]]
+        moveArray.push(pieceTransfer);     
+    }
+    return moveArray;
+        //promotion logic will be handled separately from movelogic
+}
+
+function kingSideCastlingValid(kingSquare,kingMoved,rookMoved){
+    let fSquare=[kingSquare[0]+1,kingSquare[1]];
+    let gSquare=[kingSquare[0]+2,kingSquare[1]];
+    
+    if(isAttacked(kingSquare)) return false;
+    if(kingMoved || rookMoved) return false;
+    if(checkOccupant(fSquare)!=0 ||isAttacked(fSquare)) return false;
+    if(checkOccupant(gSquare)!=0 ||isAttacked(gSquare)) return false;
+    //checkOccupant() has 3 possible return values
+    return true;      
+    
+}
+function queenSideCastlingValid(kingSquare,kingMoved,rookMoved){
+    let dSquare=[kingSquare[0]-1,kingSquare[1]];
+    let cSquare=[kingSquare[0]-2,kingSquare[1]];
+    let bSquare=[kingSquare[0]-3,kingSquare[1]]
+    
+    if(isAttacked(kingSquare)) return false;
+    if(kingMoved || rookMoved) return false;
+    if(checkOccupant(dSquare)!=0 ||isAttacked(dSquare)) return false;
+    if(checkOccupant(cSquare)!=0 ||isAttacked(cSquare)) return false;
+    if(checkOccupant(bSquare)!=0 ||isAttacked(bSquare)) return false;
+    //checkOccupant() has 3 possible return values
+    return true;      
+    
+}
+function attackMoves(opponentColor,position){
     let moveCodes=[];
     let DirectionArrayHolder={
         //duplication endured to match properties (and property order) to those in currentPosition for faster association
@@ -178,7 +290,7 @@ function attacks(opponentColor,position){
 function collectMoves(square,directions,position){
     let collectedMoves=[];
     for(let direction of directions){
-        if(direction==="" || direction==="") continue;
+        if(direction==="short-range" || direction==="long-range") continue;
         let range=directions[0];
         collectedMoves.push(generateMoves(square,range,direction,position));
     }
@@ -250,6 +362,7 @@ function threeFoldStatusUpdate(sideToPlay,position){
     }
     occuredOnce.push(positionString)
 }
+
 
 
 

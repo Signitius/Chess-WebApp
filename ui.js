@@ -74,7 +74,7 @@ let currentPossibleMoves=[];
 
 function moveValidation(moveSquares){
     for (let move in currentPossibleMoves){
-        if(move[1]==moveSquares && avoidsheck(move)) return true;
+        if(move[1]==moveSquares && avoidscheck(move)) return true;
     }
 }
 function moveHandler(e){
