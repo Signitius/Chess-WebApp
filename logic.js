@@ -17,8 +17,8 @@ _50MoveRuleCount=0;
 repeatablePastpositions=[];//each is a json string of its corresponding currentPosition with sideToPlay concatenated
 
 
-_4thRankBlackPawnHistory=[];// to help with empassant
-_5thRankWhitePawnHistory=[];
+_4thRankWhitePawnHistory=[];// to help with empassant
+_5thRankBlackPawnHistory=[];
         
 currentPosition={
     //(8*8) square cordinates to simplify move calculation
@@ -165,30 +165,59 @@ function generalMoves(position){
     }
     return moveArray;
 }
-function specialMoves(){}
-function specialPawnMoves(key){
-    if(key==="whitePawn") return specialWhitePawnMoves();
-    else return specialBlackPawnMoves();
-}
-function specialWhitePawnMoves(){
-    let moveArray=[];
-    let pieceTransfer;
 
+
+function specialMoves(){
+    let specialMoveList=[];
+    if(sideToPlay=='white'){
+        specialMoveList.push(specialPawnMoves('whitePawn'));
+        specialMoveList.push(castleMoves('white'));
+    }
+    else {
+        specialMoveList.push(specialPawnMoves('blackPawn'));
+        specialMoveList.push(castleMoves('black'))
+    }
+    return specialMoveList;
+}
+
+function specialPawnMoves(key,position=currentPosition){
+    let specialPawnMoveMoveList=[];
+    for(let square of position[key]){
+        specialPawnMoveMoveList.push(collectPawnMoves(square,key))
+    }
+    return specialPawnMoveMoveList;
+}
+
+function collectPawnMoves(square,key){
+    let moveArray=[];
+    let pieceTransfer,oneStepAbove,twoStepsAbove,leftUpperCorner,rightUpperCorner,startrank,empassantRank,rankPawnHistory;;
     let oneStepLeft=[square[0]-1,square[1]];
     let oneStepRight=[square[0]+1,square[1]];
-
-    let oneStepAbove=[square[0],square[1]+1];
-    let twoStepsAbove=[square[0],square[1]+2];  
-    let leftUpperCorner=[square[0]-1,[1]+1];
-    let rightUpperCorner=[square[0]+1,[1]+1]; 
     
-
+    if(key=='whitePawn'){
+        oneStepAbove=[square[0],square[1]+1];
+        twoStepsAbove=[square[0],square[1]+2];  
+        leftUpperCorner=[square[0]-1,[1]+1];
+        rightUpperCorner=[square[0]+1,[1]+1]; 
+        startrank=1;
+        empassantRank=5;
+        rankPawnHistory=_5thRankBlackPawnHistory;
+    }
+    else{
+        oneStepAbove=[square[0],square[1]-1];
+        twoStepsAbove=[square[0],square[1]-2];
+        leftUpperCorner=[square[0]-1,[1]-1];
+        rightUpperCorner=[square[0]+1,[1]-1]; 
+        startrank=6;
+        empassantRank=4;
+        rankPawnHistory=_4thRankWhitePawnHistory;
+    }
     if(oneStepLeft[0]===-1) oneStepLeft=null;
-    if(oneStepRight[0]===8)oneStepRight=null;
+    if(oneStepRight[0]===8) oneStepRight=null;
     // they also represent the case for left and right corners
 
     //two squares up on first move
-    if(square[1]==1 && checkOccupant(oneStepAbove)==0 && checkOccupant(twoStepsAbove)==0){
+    if(square[1]=startrank && checkOccupant(oneStepAbove)==0 && checkOccupant(twoStepsAbove)==0){
         pieceTransfer=["normal",[square,twoStepsAbove]];
         moveArray.push(pieceTransfer);    
         
@@ -200,86 +229,44 @@ function specialWhitePawnMoves(){
     }
     
     //empassant
-    if(square[1]!=4)return moveArray;
-    if(oneStepLeft && oneStepLeft in _4thRankBlackPawnHistory===false && checkOccupant(oneStepLeft)==1){
+    if(square[1]!=empassantRank)return moveArray;
+    if(oneStepLeft && oneStepLeft in rankPawnHistory===false && checkOccupant(oneStepLeft)==1){
         pieceTransfer=["empassant",[square,leftUpperCorner]];
         moveArray.push(pieceTransfer);
     }
-    if( oneStepRight && oneStepRight in _5thRankWhitePawnHistory===false && checkOccupant(oneStepRight)==1){
+    if( oneStepRight && oneStepRight in rankPawnHistory===false && checkOccupant(oneStepRight)==1){
         pieceTransfer=["empassant",[square,rightUpperCorner]];
         moveArray.push(pieceTransfer);
     } 
-        return moveArray; 
-}
-
-function specialBlackPawnMoves(){
-    let moveArray=[];
-    let pieceTransfer;
-
-    let oneStepLeft=[square[0]-1,square[1]];
-    let oneStepRight=[square[0]+1,square[1]];
-
-    let oneStepAbove=[square[0],square[1]-1];
-    let twoStepsAbove=[square[0],square[1]-2];
-    let leftUpperCorner=[square[0]-1,[1]-1];
-    let rightUpperCorner=[square[0]+1,[1]-1];
-
-    if(oneStepLeft[0]===-1) oneStepLeft=null;
-    if(oneStepRight[0]===8)oneStepRight=null;
-    // they also represent the case for left and right corners
-
-    //two steps up on first move
-    if(square[1]==6 && checkOccupant(oneStepAbove)==0 && checkOccupant(twoStepsAbove)==0){
-        pieceTransfer=["normal",[square,twoStepsAbove]];    
-        moveArray.push(pieceTransfer);    
-    }
-    //one step up
-    if(checkOccupant(oneStepAbove)==0){
-        pieceTransfer=["normal",[square,oneStepAbove]];     
-        moveArray.push(pieceTransfer);     
-    }  
-
-    //empassant
-    if(square[1]!=3)return moveArray;
-
-    if(oneStepLeft && oneStepLeft in _5thRankWhitePawnHistory===false && checkOccupant(oneStepLeft)==1){
-        pieceTransfer=["empassant",[square,leftUpperCorner]]
-        moveArray.push(pieceTransfer);       
-    }
-    if(oneStepRight && oneStepRight in _5thRankWhitePawnHistory===false && checkOccupant(oneStepRight)==1){
-        pieceTransfer=["empassant",[square,rightUpperCorner]]
-        moveArray.push(pieceTransfer);     
-    }
     return moveArray;
-        //promotion logic will be handled separately from movelogic
 }
 
-function kingSideCastlingValid(kingSquare,kingMoved,rookMoved){
-    let fSquare=[kingSquare[0]+1,kingSquare[1]];
-    let gSquare=[kingSquare[0]+2,kingSquare[1]];
-    
-    if(isAttacked(kingSquare)) return false;
+//castling
+whiteKingCastleList=[[4,0],[5,0],[6,0]]   //e1,f1,g1 squares
+blackKingCastleList=[[4,7],[5,7],[6,7]]
+
+whiteQueenCastleList=[[4,0],[3,0][2,0],[1,0]]
+blackQueenCastleList=[[4,7],[3,7][2,7],[1,7]]
+
+function castlingValid(attackCheckList,kingMoved,rookMoved){
+    if(areAttacked(opponentColor,attackCheckList,currentPosition)) return false;
     if(kingMoved || rookMoved) return false;
-    if(checkOccupant(fSquare)!=0 ||isAttacked(fSquare)) return false;
-    if(checkOccupant(gSquare)!=0 ||isAttacked(gSquare)) return false;
-    //checkOccupant() has 3 possible return values
-    return true;      
-    
+    for (let square of attackCheckList){
+        if(square==[4,0] || square==[4,7])continue;
+        if(checkOccupant(square)!=0) return false;
+        //checkOccupant() has 3 possible return values
+    }
+    return true;         
 }
-function queenSideCastlingValid(kingSquare,kingMoved,rookMoved){
-    let dSquare=[kingSquare[0]-1,kingSquare[1]];
-    let cSquare=[kingSquare[0]-2,kingSquare[1]];
-    let bSquare=[kingSquare[0]-3,kingSquare[1]]
-    
-    if(isAttacked(kingSquare)) return false;
-    if(kingMoved || rookMoved) return false;
-    if(checkOccupant(dSquare)!=0 ||isAttacked(dSquare)) return false;
-    if(checkOccupant(cSquare)!=0 ||isAttacked(cSquare)) return false;
-    if(checkOccupant(bSquare)!=0 ||isAttacked(bSquare)) return false;
-    //checkOccupant() has 3 possible return values
-    return true;      
-    
+
+function castleMoves(color){
+    let castleMoveList;
+    if(color=='white'){
+        if(castlingValid())castleMoveList.push([whiteKingCasle,[],[]])
+    }
 }
+    //must wrap an array around move codes
+
 function attacks(color,position){
     let attackCodes=[];
     let directionArrayHolder={

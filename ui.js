@@ -50,8 +50,7 @@ function rotateBoard(){
     for (let rank of ranks) rank.style.flexDirection=(rank.style.flexDirection=="row-reverse")? "row":"row-reverse";   
 }
 
-let possibleMoves;
-let alreadyClicked;
+let possibleMoves, alreadyClicked , highlighted;
 
 function moveHandler(e){
     highlighted=document.querySelector('.highlighted');
@@ -63,6 +62,7 @@ function moveHandler(e){
 function originValidate(clickedSquare){
     for(move of possibleMoves){
         if(move[1][0]!=clickedSquare) continue;
+        clickedSquare.classList.add('.highlighted')
         alreadyClicked=clickedSquare;
         break;
     }
@@ -74,5 +74,16 @@ function destinationValidate(clickedSquare){
         return moveAccept();
     }
 }
+
+
+//themes
+natureTheme={
+    darkSquares:'',lightSquares:'',boardContainer:'', moveSound:''
+}
+taylorSwiftTheme={}
+
+function changeTheme(){}
+
+
 
     
