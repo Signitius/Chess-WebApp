@@ -198,7 +198,7 @@ function generalMoves(position){
             continue;
         }
         //eliminate pawn diagonal movement if not capture
-        if (belongsTo(position,moveCodes[0])===whitePawn||belongsTo(position,moveCodes[0])===blackPawn) continue;
+        if (belongsTo(position,moveCodes[0])==="whitePawn"||belongsTo(position,moveCodes[0])==="blackPawn") continue;
         if(checkOccupant(moveCodes[1])===0) moveArray.push(["normal",moveCodes]);
 
     }
@@ -371,9 +371,11 @@ function checkOccupant(square,color=sideToPlay,position=currentPosition){
 }
 
 function belongsTo(position,square){
-    for (let array of Object.entries(position)){
-        let key=array[1];
-        if (key.contains(square)) return array[0]; 
+    let valueList=Object.values(position);
+    for (let index in valueList){
+        for (let box of valueList[index]){
+            if(box==square) return Object.keys(position)[index];
+        } 
     }
     console.log('square not found');
     return null;
