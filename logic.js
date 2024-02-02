@@ -66,17 +66,18 @@ let move={
 }
 
 function checkStatus(){
-    if(isCheckmate()) return checkmate();
-    if(isStalemate()) return stalemate();
-    if(isFiftyMoveDraw()) return fiftyMoveDraw();
-    if(isThreeFoldDraw()) return threeFoldDraw();
-    if(isMateImpossibilityDraw()) return mateImpossibilityDraw();
     newTurn();
+    if(isCheckmate()) return endGame("checkmate");
+    if(isStalemate()) return endGame("stalemate");
+    if(isFiftyMoveDraw()) return endGame("fiftyMoveDraw");
+    if(isThreeFoldDraw()) return endGame("threeFoldDraw");
+    if(isMateImpossibilityDraw()) return endGame("mateImpossibilityDraw");
+   
 }
-
+function endGame(){}
 function positionUpdate(){}
 function fiftyMoveRuleUpdate(moveObject){
-    _50MoveRuleCount+=1;
+    _50MoveRuleCount+=0.5;
     if (moveObject.piece=="pawn" || moveObject.type=="capture")_50MoveRuleCount=0;
     if (isCheck(currentPosition))_50MoveRuleCount=0;
 }
@@ -115,17 +116,39 @@ function sideToPlayUpdate(){
 }
 
 
-function checkmate(){}
-function stalemate(){}
-function fiftyMoveDraw(){}
-function threeFoldDraw(){}
-function mateImpossibilityDraw(){}
 
-function isCheckmate(){}
-function isStalemate(){}
-function isFiftyMoveDraw(){}
-function isThreeFoldDraw(){}
-function isMateImpossibilityDraw(){}
+
+function isCheckmate(){
+    if(possibleMoves.length!=0) return false;
+    if(isCheck(currentPosition)==true)return true;
+}
+function isStalemate(){
+    if(possibleMoves.length!=0) return false;
+    if(isCheck(currentPosition)==false)return true;
+}
+function isFiftyMoveDraw(){
+    if(_50MoveRuleCount==50) return true;
+    return false;
+}
+function isThreeFoldDraw(){
+    if(threeFoldDrawn==true) return true;
+    return false;
+}
+function isMateImpossibilityDraw(){
+    if(currentPosition.blackQueen.length!=0)return false;
+    if(currentPosition.whiteQueen.length!=0)return false;
+    if(currentPosition.blackRook.length!=0)return false;
+    if(currentPosition.whiteRook.length!=0)return false;
+    if(currentPosition.whitePawn.length!=0)return false;
+    if(currentPosition.blackPawn.length!=0)return false;
+
+    if(currentPosition.blackBishop.length==2)return false;
+    if(currentPosition.whiteBishop.length==2)return false;
+    if(currentPosition.blackBishop.length==1 && currentPosition.blackKnight==1)return false;
+    if(currentPosition.whiteBishop.length==1 && currentPosition.whiteKnight==1)return false;
+
+    return true;
+}
 
 
 export let possibleMoves=[];
@@ -454,13 +477,13 @@ function has (position,square){
 
 let occuredOnce=[];
 let occuredTwice=[];
-let threeFoldDraw=false;
+let threeFoldDrawn=false;
 //occurs after positionUpdate() and sideToPlayUpate();
 function threeFoldStatusUpdate(){
     let repeatable=[sideToPlay,position];
     let positionString=JSON.stringify(repeatable);
     if (occuredTwice.contains(positionString)){
-        threeFoldDraw=true;
+        threeFoldDrawn=true;
         return;
     }
     if (occuredOnce.contains(positionString)){
@@ -475,4 +498,15 @@ function threeFoldStatusUpdate(){
 
 function resetThreeFold(){
     //after a capture or promotion, or pawn move
+}
+
+
+function contains(array1,array2){
+    let stringArray1;
+    let stringArray2=JSON.stringify(array2);
+    for (let item of array1){
+        stringArray1=JSON.stringify(item);
+        if(stringArray1==stringArray2) return true;
+    }
+    return false;
 }
