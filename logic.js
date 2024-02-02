@@ -2,6 +2,7 @@
 
 
 let sideToPlay="white"
+let opponentColor="black"
 let whiteKingMoved=false;
 let whiteKingRookMoved=false;
 let whiteQueenRookMoved=false;
@@ -45,51 +46,97 @@ let currentPosition={
 // game status end
 
 export function moveAccept(move){
-    updateStatus();
+    updateStatus(createMoveObject(move));
     updateBoard();
     checkStatus();
 }
-function updateStatus(){
+function createMoveObject(move){}
+
+function updateStatus(moveObject){
+    positionUpdate();
     fiftyMoveRuleUpdate();
     empassantUpdate();
     castlingUpdate();
-    positionUpdate();
     threeFoldStatusUpdate();
     sideToPlayUpdate();
 }
 
+let move={
+    type:"",piece:'',origin:"",pieceType:'',destination:''
+}
+
 function checkStatus(){
-    if(checkmate());
-    if(stalemate());
-    if(fiftyMoveDraw());
-    if(threeFoldDrawn());
-    if(mateImpossibilityDraw());
+    if(isCheckmate()) return checkmate();
+    if(isStalemate()) return stalemate();
+    if(isFiftyMoveDraw()) return fiftyMoveDraw();
+    if(isThreeFoldDraw()) return threeFoldDraw();
+    if(isMateImpossibilityDraw()) return mateImpossibilityDraw();
     newTurn();
 }
-function fiftyMoveRuleUpdate(){}
-function empassantUpdate(){}
-function castlingUpdate(){}
-function positionUpdate(){
+
+function positionUpdate(){}
+function fiftyMoveRuleUpdate(moveObject){
+    _50MoveRuleCount+=1;
+    if (moveObject.piece=="pawn" || moveObject.type=="capture")_50MoveRuleCount=0;
+    if (isCheck(currentPosition))_50MoveRuleCount=0;
+}
+function empassantUpdate(moveObject){
+    
+    if(moveObject.piece!="pawn")return;
+    if(moveObject.color=="white")_4thRankWhitePawnHistory=[];
+    else _5thRankBlackPawnHistory=[];
+    if(moveObject.color=="white" && moveObject.destination[1]==3 && moveObject.origin[1]==1){
+        _4thRankWhitePawnHistory.push(moveObject.destination);
+        return;
+    }
+    if(moveObject.color=="black" && moveObject.destination[1]==4 && moveObject.origin[1]==6){
+        _5thRankBlackPawnHistory=[];
+        _5thRankBlackPawnHistory.push(moveObject.destination);
+        return;
+    }
+}
+function castlingUpdate(moveObject){
+    if (moveObject.piece=="whiteKing")whiteKingMoved=true;
+    if (moveObject.piece=="blackKing")whiteKingMoved=true;
+    if (moveObject.piece=="whiteRook" && moveObject.origin[0]==0)whiteKingRookMoved=true;
+    if (moveObject.piece=="whiteRook")whiteKingMoved=true;
+    if (moveObject.piece=="whiteKing")whiteKingMoved=true;
+    if (moveObject.piece=="whiteKing")whiteKingMoved=true;
+//do the necessary editing
+}
+function positionUpdate(moveObject){
     //implement pawn promotion
 }
+let colorSwap=sideToPlay;
 function sideToPlayUpdate(){
-    sideToPlay=(sideToPlay=="black")? "white":"black";
+    sideToPlay=opponentColor;
+    opponentColor=colorSwap;
+    colorSwap=sideToPlay;
 }
 
 
 function checkmate(){}
 function stalemate(){}
 function fiftyMoveDraw(){}
-function threeFoldDrawn(){}
+function threeFoldDraw(){}
 function mateImpossibilityDraw(){}
+
+function isCheckmate(){}
+function isStalemate(){}
+function isFiftyMoveDraw(){}
+function isThreeFoldDraw(){}
+function isMateImpossibilityDraw(){}
 
 
 export let possibleMoves=[];
+
+
 export function newTurn(){
     let newPossibleMoves=[];
     newPossibleMoves.push(generalMoves(currentPosition));
     newPossibleMoves.push(specialMoves());
     possibleMoves=newPossibleMoves;
+    
 }
 
 
@@ -152,14 +199,18 @@ function areAttacked(enemyColor,squareList,position){
     let attacked=attacks(enemyColor,position);
     let attackedDestinations=destinations(attacked);
     for(let member of squareList){
-        if(attackedDestinations.contains(member)==false)return false;
+        for(let attacked of attackedDestinations){
+            if (attacked==member)return false;
+
+        }
     }
     return true ;
 }
 
 function destinations(moveList){
     for (let moveCodes of moveList){
-        moveCodes.remove(moveCodes[0]);
+        let origin=moveCodes.splice(0,1);
+        
     }
     return moveList;
 }
@@ -202,6 +253,7 @@ function generalMoves(position){
         if(checkOccupant(moveCodes[1])===0) moveArray.push(["normal",moveCodes]);
 
     }
+    
     return moveArray;
 }
 
@@ -371,21 +423,22 @@ function checkOccupant(square,color=sideToPlay,position=currentPosition){
 }
 
 function belongsTo(position,square){
-    let valueList=Object.values(position);
-    for (let index in valueList){
-        for (let box of valueList[index]){
-            if(box==square) return Object.keys(position)[index];
-        } 
+    
+    for(let array of Object.entries(position)){
+        for(let box of array[1]){
+            if(box==square){
+                console.log(array[0]);
+                return array[0];
+        }   }
     }
-    console.log('square not found');
     return null;
 }
 
 
 function has (position,square){
-    for (let array of Object.entries(position)){
-        if (array[1].contains(square)) return true; 
-    }
+    let positionString=JSON.stringify(position);
+    let squareString=JSON.stringify(square);
+    if (positionString.includes(squareString)) return true;
     return false;
 }
 
@@ -411,6 +464,8 @@ function threeFoldStatusUpdate(){
         return;
     }
     if (occuredOnce.contains(positionString)){
+        let index=occuredOnce.indexOf(positionString);
+        occuredOnce.splice(index,1);
         occuredTwice.push(positionString);
         return;
     }

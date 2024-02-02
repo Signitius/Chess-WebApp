@@ -10,8 +10,16 @@ const darkSquares=document.querySelectorAll('.dark');
 const lightSquares=document.querySelectorAll('.light');
 
 
-button1.onclick=twoPlayer;
-button2.onclick=chooseSide;
+
+
+
+
+
+function begin(){
+    button1.onclick=twoPlayer;
+    button2.onclick=chooseSide;
+}
+begin();
 
 
 
@@ -22,18 +30,22 @@ function chooseSide(){
     button2.onclick=blackVsAi;
 }
 
+
 function twoPlayer(){
     button2.textContent="Rotate board";
-    initialiseBoard();
     button2.onclick=rotateBoard; 
+    initialiseBoard();
 }
+
 
 function initialiseBoard(){
     button1.textContent="Quit game";
     boardContainer.style.display="block";
-    for (let square of squares) square.addEventListener("click",moveHandler);
     newTurn();
+    for (let square of squares) square.addEventListener("click",moveHandler);
+    
 }
+
 
 function blackVsAi(){
     rotateBoard();
@@ -41,15 +53,23 @@ function blackVsAi(){
     initialiseBoard(); 
 }
 
+
 function whiteVsAi(){
     button2.style.display="none";
     initialiseBoard();   
 }
 
+
 function rotateBoard(){
     board.style.flexDirection=(board.style.flexDirection=="column-reverse")? "column":"column-reverse";
     for (let rank of ranks) rank.style.flexDirection=(rank.style.flexDirection=="row-reverse")? "row":"row-reverse";   
 }
+
+
+
+
+
+
 
 let alreadyClicked , highlighted;
 
@@ -61,7 +81,7 @@ function moveHandler(e){
 }
 
 function originValidate(clickedSquare){
-    for(move of possibleMoves){
+    for( let move of possibleMoves){
         if(move[1][0]!=clickedSquare) continue;
         clickedSquare.classList.add('.highlighted')
         alreadyClicked=clickedSquare;
@@ -72,16 +92,18 @@ function originValidate(clickedSquare){
 function destinationValidate(clickedSquare){
     for(move of possibleMoves){
         if(move[1][1]!=clickedSquare) continue;
-        return moveAccept();
+        return moveAccept(move);
     }
 }
+
+
 
 
 /*themes
 natureTheme={
     darkSquares:'',lightSquares:'',boardContainer:'', moveSound:''
 }
-taylorSwiftTheme={}
+funnyTheme={}
 
 function changeTheme(){}*/
 
