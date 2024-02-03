@@ -40,6 +40,7 @@ function twoPlayer(){
 
 function initialiseBoard(){
     button1.textContent="Quit game";
+    button1.onclick=quitGame;
     boardContainer.style.display="block";
     newTurn();
     for (let square of squares) square.addEventListener("click",moveHandler);
@@ -65,6 +66,11 @@ function rotateBoard(){
     for (let rank of ranks) rank.style.flexDirection=(rank.style.flexDirection=="row-reverse")? "row":"row-reverse";   
 }
 
+function quitGame(){
+    endGame("quit");
+}
+
+function endGame(cause){}
 
 
 
@@ -80,6 +86,8 @@ function moveHandler(e){
     else destinationValidate(e.currentTarget); 
 }
 
+
+//move format--->["capture",[[2,3],[1,8]]]---->[type,[origin,destination]]
 function originValidate(clickedSquare){
     for( let move of possibleMoves){
         if(move[1][0]!=clickedSquare) continue;
