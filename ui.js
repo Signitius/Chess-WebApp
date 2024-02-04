@@ -15,11 +15,11 @@ const lightSquares=document.querySelectorAll('.light');
 
 
 
-function begin(){
+function home(){
     button1.onclick=twoPlayer;
     button2.onclick=chooseSide;
 }
-begin();
+home();
 
 
 
@@ -41,7 +41,7 @@ function twoPlayer(){
 function initialiseBoard(){
     button1.textContent="Quit game";
     button1.onclick=quitGame;
-    boardContainer.style.display="block";
+    boardContainer.style.visibility="visible";
     newTurn();
     for (let square of squares) square.addEventListener("click",moveHandler);
     
@@ -62,6 +62,7 @@ function whiteVsAi(){
 
 
 function rotateBoard(){
+    boardContainer.style.flexDirection=(boardContainer.style.flexDirection=="column-reverse")? "column":"column-reverse";
     board.style.flexDirection=(board.style.flexDirection=="column-reverse")? "column":"column-reverse";
     for (let rank of ranks) rank.style.flexDirection=(rank.style.flexDirection=="row-reverse")? "row":"row-reverse";   
 }

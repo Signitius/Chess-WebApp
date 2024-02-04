@@ -1,5 +1,7 @@
 //--------------------------------game status---------------------------
 
+
+
 let sideToPlay="white"
 let opponentColor="black"
 
@@ -13,7 +15,7 @@ let blackKingRookMoved=false;
 let blackQueenRookMoved=false;
         
 
-empassantTargets=[];
+let empassantTargets=[];
 let fiftyMoveRuleCount=0;
 
 let positionsOccuredOnce=[];
@@ -63,11 +65,13 @@ function createMoveObject(move){
     let moveObj={};
 
     moveObj.moveType=move[0];
-    moveObj.pieceType=belongsTo(currentPosition,move[1][0]);
-    moveObj.origin=move[1][0];
-    moveObj.destination=move[1][1];
-
-
+    let moveCodes=move[1];
+    let origin=moveCodes[0];
+    let destination=moveCodes[1];
+    moveObj.pieceType=belongsTo(currentPosition,origin);
+    moveObj.origin=origin;
+    moveObj.destination=destination;
+    
     return moveObj;
 }
 
@@ -77,17 +81,116 @@ function createMoveObject(move){
 
 //------------------------------------------status update------------------------------------------------------
 function updateStatus(moveObject){
-    positionUpdate();
-    fiftyMoveRuleUpdate();
-    empassantUpdate();
-    castlingUpdate();
-    threeFoldStatusUpdate();
+    positionUpdate(moveObject,position);
+    fiftyMoveRuleUpdate(moveObject);
+    empassantUpdate(moveObject);
+    castlingUpdate(moveObject);
+    threeFoldStatusUpdate(moveObject);
     sideToPlayUpdate();
 }
 
 
-function positionUpdate(moveObject){
-    //implement promotion
+function positionUpdate(moveObject,position){
+    
+    if(moveObject.moveType=="normal"){
+        replace(position,moveObject.pieceType,moveObject.origin,moveObject.destination);
+        return;
+    }
+
+    if(moveObject.moveType=="capture"){
+        let deletedPiecetype=belongsTo(moveObject.destination);
+        deletion(position,deletedPiecetype,moveObject.destination)
+        replace(position,moveObject.pieceType,moveObject.origin,moveObject.destination);
+        return;
+    }
+
+    if(moveObject.pieceType=="whitePawn" && moveObject.destination[1]==7 && position==currentPosition){
+        promote(moveObject,position);
+        return;
+    }
+    if(moveObject.pieceType=="blackPawn" && moveObject.destination[1]==0 && position==currentPosition){
+        promote(moveObject,position);
+        return;
+    }
+    
+    if(moveObject.moveType=="empassant"){
+        if (moveObject.pieceType=="whitePawn"){
+            let below=[moveObject.destination[0],moveObject.destination[1]-1];
+            deletion(position,"blackPawn",below);
+        }
+        else{
+            let below=[moveObject.destination[0],moveObject.destination[1]+1];
+            deletion(position,"whitePawn",below);
+        }
+        replace(position,moveObject.pieceType,moveObject.origin,moveObject.destination);
+        return;
+    }
+
+    if(moveObject.moveType=="whiteKingCastle"){
+        replace(position,moveObject.pieceType,moveObject.origin,moveObject.destination);
+        replace(position,"whiteRook",[7,0],[5,0]);
+        return;
+    }
+
+    if(moveObject.moveType=="whiteQueenCastle"){
+        replace(position,moveObject.pieceType,moveObject.origin,moveObject.destination);
+        replace(position,"whiteRook",[0,0],[3,0]);
+        return;
+    }
+
+    if(moveObject.moveType=="blackQueenCastle"){
+        replace(position,moveObject.pieceType,moveObject.origin,moveObject.destination);
+        replace(position,"blackRook",[0,7],[3,7]);
+        return;
+    }
+
+    if(moveObject.moveType=="blackKingCastle"){
+        replace(position,moveObject.pieceType,moveObject.origin,moveObject.destination);
+        replace(position,"blackRook",[7,7],[5,7]);
+        return;
+    }
+}
+let chosenPiece;
+function promote(moveObject,position){
+    pieceChoice();
+    delete(position,moveObject.pieceType,moveObject.destination);
+    update(position,chosenPiece,moveObject.destination)
+}
+
+let promotionChoice,promotionImages;
+
+function pieceChoice(moveObject){
+    
+    if(moveObject.pieceType.includes('white')){
+        promotionChoice=document.getElementById("#white-promotion");
+        promotionImages=querySelectorAll('white-promotion-img')
+    }
+    else{
+        promotionChoice=document.getElementById("#black-promotion");
+        promotionImages=querySelectorAll('black-promotion-img')
+    }
+
+    promotionChoice.style.display="block";
+    for (let image of promotionImages)image.addEventListener("click",createPiece);
+}
+
+function createPiece(e){
+    chosenPiece=e.currentTarget.id;
+    promotionChoice.style.display="none";
+}
+
+function update(position,pieceType,square){
+    position[pieceType].push(square);
+}
+
+function deletion(position,pieceType,square){
+    let index=position[pieceType].indexOf(square);
+    position.pieceType.splice(index,1);
+}
+
+function replace(position,pieceType,originSquare,destinationSquare){
+    let index=position[pieceType].indexOf(originSquare);
+    position[pieceType][index]=destinationSquare;
 }
 
 
@@ -195,11 +298,11 @@ function newImage(location,imageType){
 
 function checkStatus(){
     newTurn();//so that possible moves are generated first
-    if(isCheckmate()) return endGame("checkmate");
-    if(isStalemate()) return endGame("stalemate");
-    if(isFiftyMoveDraw()) return endGame("fiftyMoveDraw");
-    if(isThreeFoldDraw()) return endGame("threeFoldDraw");
-    if(isMateImpossibilityDraw()) return endGame("mateImpossibilityDraw");
+    if(isCheckmate()) return endGame(`Checkmate ${opponentColor} wins`);
+    if(isStalemate()) return endGame("Stalemate");
+    if(isFiftyMoveDraw()) return endGame("Draw by Fifty move rule");
+    if(isThreeFoldDraw()) return endGame("Draw by Threefold Repeatition");
+    if(isMateImpossibilityDraw()) return endGame("Draw by Impossibility of mate");
    
 }
 
@@ -216,6 +319,11 @@ export function newTurn(){
     
 }
 
+function endGame(gameResult){
+    let gameResultContainer=document.querySelector('#game-result-container');
+    gameResultContainer.style.display="block";
+    gameResultContainer.textContent=gameResult;
+}
 
 
 function isCheckmate(){
@@ -279,7 +387,7 @@ function generalMoves(position){
         if(checkOccupant(moveCodes[1])===0) moveArray.push(["normal",moveCodes]);
 
     }
-    
+    console.log(moveArray);
     return moveArray;
 }
 
@@ -454,8 +562,8 @@ let futurePosition;
 
 function avoidsCheck(move){
     futurePosition=JSON.parse(JSON.stringify(currentPosition));
-    positionUpdate();(move,futurePosition);
-    return !(isCheck(color,futurePosition));
+    positionUpdate(createMoveObject(move),futurePosition);
+    return !(isCheck(sideToPlay,futurePosition));
 }
 
 function isCheck(color,position){

@@ -1,5 +1,7 @@
 #board-container{
-    display: none;
+    visibility:hidden;
+    display: flex;
+    flex-direction: column;
 }
 body{
     font-size: 2rem;
@@ -51,4 +53,14 @@ img{
 
 *{
     box-sizing: border-box;
+}
+
+
+.promotion-choice{
+    text-align: center;
+    display: none;
+}
+
+#game-result{
+    display: none;
 }

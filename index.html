@@ -8,10 +8,18 @@
     </head>
     <body>
         
-        <div id="buttons" type="button"><button id="button1">2 player mode</button>
+        <div id="buttons">
+            <button type="button" id="button1">2 player mode</button>
             <button type="button" id="button2">Play vs Ai </button>
         </div>
+        <div id="game-result-containers"></div>
         <div id="board-container">
+            <div class="promotion-choice" id="white-promotion">
+                <img class="white-promotion-img" src="wikipedia/whiteQueen.png" alt="">
+                <img class="white-promotion-img" src="wikipedia/whiteRook.png" alt="">
+                <img class="white-promotion-img" src="wikipedia/whiteKnight.png" alt="">
+                <img class="white-promotion-img" src="wikipedia/whiteBishop.png" alt="">
+            </div>
             <div id="board">
                 <div id="rank8" class="rank">
                     <div class="square light" id="a8">
@@ -173,6 +181,12 @@
                         <img class="white"src="wikipedia/whiteRook.png" alt="">
                     </div>
                 </div>   
+            </div>
+            <div class="promotion-choice" id="black-promotion">
+                <img class="black-promotion-img" src="wikipedia/blackQueen.png" alt="">
+                <img class="black-promotion-img" src="wikipedia/blackRook.png" alt="">
+                <img class="black-promotion-img" src="wikipedia/blackKnight.png" alt="">
+                <img class="black-promotion-img" src="wikipedia/blackBishop.png" alt="">
             </div>
         </div>
         
