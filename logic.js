@@ -153,7 +153,7 @@ function positionUpdate(moveObject,position){
 let chosenPiece;
 function promote(moveObject,position){
     pieceChoice();
-    delete(position,moveObject.pieceType,moveObject.destination);
+    deletion(position,moveObject.pieceType,moveObject.destination);
     update(position,chosenPiece,moveObject.destination)
 }
 
@@ -387,7 +387,7 @@ function generalMoves(position){
         if(checkOccupant(moveCodes[1])===0) moveArray.push(["normal",moveCodes]);
 
     }
-    console.log(moveArray);
+    
     return moveArray;
 }
 
@@ -534,13 +534,16 @@ function collectMoves(square,directions,position){
 }
 
 function generateMoves(square,range,direction,position){
-    let attacksGenerated=[]
+    console.log(square);
+    let attacksGenerated=[];
     var newLocation=[square[0]+direction[0],square[1]+direction[1]];
     while (newLocation[0]>-1 && newLocation[0]<8 && newLocation[1]>-1 && newLocation[1]<8){
-        attacksGenerated.push([square,newLocation]);
+        let pushable=[square,newLocation];
+        attacksGenerated.push(pushable);
         if (range==="short-range")break;
         if (belongsTo(position,newLocation)!=null) break;
         newLocation=[newLocation[0]+direction[0],newLocation[1]+direction[1]];
+        
     }
     return attacksGenerated;        
 }
@@ -587,13 +590,13 @@ function isAttacked(enemyColor,square,position){
     }
     return false ;
 }
+
 function areAttacked(enemyColor,squareList,position){
     let attacked=attacks(enemyColor,position);
     let attackedDestinations=destinations(attacked);
     for(let member of squareList){
         for(let attacked of attackedDestinations){
             if (attacked==member)return false;
-
         }
     }
     return true ;
@@ -613,8 +616,7 @@ function areAttacked(enemyColor,squareList,position){
 
 function destinations(moveList){
     for (let moveCodes of moveList){
-        let origin=moveCodes.splice(0,1);
-        
+        moveCodes.splice(0,1); 
     }
     return moveList;
 }
